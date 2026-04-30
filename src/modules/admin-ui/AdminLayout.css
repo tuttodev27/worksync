@@ -1,0 +1,57 @@
+/* ============================================================
+   WorkSync ATS — AdminLayout.css
+   ============================================================ */
+
+.admin-shell {
+  display: flex;
+  min-height: 100vh;
+  background: #f8fafc;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.admin-main {
+  margin-left: 220px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ── Topbar ── */
+.admin-topbar {
+  height: 56px;
+  background: #ffffff;
+  border-bottom: 1px solid rgba(228, 228, 231, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.topbar-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #18181b;
+  letter-spacing: -0.2px;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topbar-email {
+  font-size: 13px;
+  color: #71717a;
+  font-weight: 400;
+}
+
+/* ── Content area ── */
+.admin-content {
+  padding: 32px;
+  flex: 1;
+}

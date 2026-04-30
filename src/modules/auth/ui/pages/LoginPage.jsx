@@ -25,7 +25,7 @@ export default function LoginPage() {
       const user = await loginUser(AuthMockRepository, form);
       localStorage.setItem("authUser", JSON.stringify(user));
       localStorage.setItem("token", user.token);
-      navigate("/admin/users");
+      navigate("/admin");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -35,7 +35,6 @@ export default function LoginPage() {
 
   return (
     <div className="login-page">
-      {/* Panel izquierdo: marca */}
       <aside className="login-brand">
         <div className="login-brand-glass" />
 
@@ -56,7 +55,6 @@ export default function LoginPage() {
         </div>
       </aside>
 
-      {/* Panel derecho: formulario */}
       <main className="login-form-wrapper">
         <div className="login-form-inner">
           <div className="login-mobile-badge">WorkSync ATS</div>
@@ -89,6 +87,7 @@ export default function LoginPage() {
                   Olvidé mi contraseña
                 </Link>
               </div>
+
               <input
                 type="password"
                 id="password"
@@ -104,13 +103,6 @@ export default function LoginPage() {
               {loading ? "Ingresando…" : "Ingresar"}
             </button>
           </form>
-
-          <div className="login-footer">
-            <p>
-              ¿No tienes una cuenta de equipo?{" "}
-              <Link to="/register">Crear cuenta</Link>
-            </p>
-          </div>
         </div>
       </main>
     </div>
