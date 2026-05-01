@@ -1,0 +1,23 @@
+/* ============================================================
+   WorkSync ATS — PermissionPage.css
+   Overrides mínimos. Hereda de LoginPage.css + RegisterPage.css + RolePage.css.
+   Importa este archivo DESPUÉS de los otros tres.
+   ============================================================ */
+
+/* Placeholder de código tipo monoespaciado para el campo "code" */
+#code {
+  font-family: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular,
+    Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  letter-spacing: 0.01em;
+}
+
+/* Ajuste sutil: títulos del brand panel en PermissionPage */
+.brand-panel .brand-title {
+  line-height: 1.05;
+}
+
+/* Estado deshabilitado de los select (asegura consistencia cross-browser) */
+.select-wrapper select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

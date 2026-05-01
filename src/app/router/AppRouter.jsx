@@ -1,13 +1,19 @@
 import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
 
-// Auth
 import LoginPage from "../../modules/auth/ui/pages/LoginPage";
 import ForgotPasswordPage from "../../modules/auth/ui/pages/ForgotPasswordPage";
 
-// Admin
 import AdminLayout from "../../modules/admin-ui/AdminLayout";
 import AdminDashboard from "../../modules/admin-ui/AdminDashboard";
+
 import RegisterPage from "../../modules/admin-ui/RegisterPage";
+import RolesPage from "../../modules/admin-ui/RolesPage";
+import ModuloPage from "../../modules/admin-ui/ModuloPage";
+import MenusPage from "../../modules/admin-ui/MenusPage";
+
+import RoleCreatePage from "../../modules/admin-ui/RoleCreatePage";
+import ModuloCreatePage from "../../modules/admin-ui/ModuloCreatePage";
+import MenuCreatePage from "../../modules/admin-ui/MenuCreatePage";
 
 function RequireAuth({ children }) {
   const token = localStorage.getItem("token");
@@ -42,11 +48,14 @@ export default function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Auth público */}
+
+        {/* 🔥 LOGIN */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
+
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-        {/* Admin protegido */}
+        {/* 🔥 ADMIN */}
         <Route
           path="/admin"
           element={
@@ -56,16 +65,28 @@ export default function AppRouter() {
           }
         >
           <Route index element={<AdminDashboard />} />
+
           <Route path="users" element={<UsersPage />} />
           <Route path="users/create" element={<RegisterPage />} />
 
-          <Route path="roles" element={<div style={{ padding: 32 }}>CRUD Roles — próximamente</div>} />
-          <Route path="permissions" element={<div style={{ padding: 32 }}>CRUD Permisos — próximamente</div>} />
-          <Route path="modules" element={<div style={{ padding: 32 }}>CRUD Módulos — próximamente</div>} />
-          <Route path="menu" element={<div style={{ padding: 32 }}>CRUD Menú — próximamente</div>} />
+          <Route path="roles" element={<RolesPage />} />
+          <Route path="roles/new" element={<RoleCreatePage />} />
+
+          <Route path="modules" element={<ModuloPage />} />
+          <Route path="modules/new" element={<ModuloCreatePage />} />
+
+          <Route path="menu" element={<MenusPage />} />
+          <Route path="menu/new" element={<MenuCreatePage />} />
+
+          <Route
+            path="permissions"
+            element={<div style={{ padding: 32 }}>CRUD Permisos — próximamente</div>}
+          />
         </Route>
 
+        {/* 🔥 FALLBACK */}
         <Route path="*" element={<Navigate to="/login" replace />} />
+
       </Routes>
     </BrowserRouter>
   );

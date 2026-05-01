@@ -1,0 +1,179 @@
+/* ============================================================
+   WorkSync ATS — AdminForms.css
+   Estilos para formularios de creación dentro del AdminLayout.
+   ============================================================ */
+
+.af-subtitle {
+  font-size: 14px;
+  color: #71717a;
+  margin-top: 4px;
+}
+
+/* Card contenedor del formulario */
+.af-card {
+  background: #ffffff;
+  border: 1px solid rgba(228, 228, 231, 0.8);
+  border-radius: 14px;
+  padding: 32px;
+  max-width: 640px;
+}
+
+/* Formulario */
+.af-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Fila de 2 columnas */
+.af-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 560px) {
+  .af-row { grid-template-columns: 1fr; }
+}
+
+/* Grupo label + input */
+.af-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.af-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #18181b;
+  letter-spacing: -0.01em;
+}
+
+/* Input */
+.af-input {
+  height: 44px;
+  width: 100%;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(228, 228, 231, 0.8);
+  background: rgba(250, 250, 250, 0.5);
+  color: #18181b;
+  font-size: 14px;
+  font-family: 'Inter', system-ui, sans-serif;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.af-input::placeholder { color: #a1a1aa; }
+
+.af-input:hover { border-color: #d4d4d8; }
+
+.af-input:focus {
+  border-color: #2563eb;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+/* Select */
+.af-select-wrapper { position: relative; }
+
+.af-select {
+  width: 100%;
+  height: 44px;
+  padding: 0 36px 0 14px;
+  border: 1px solid rgba(228, 228, 231, 0.8);
+  border-radius: 10px;
+  background: rgba(250, 250, 250, 0.5);
+  color: #18181b;
+  font-size: 14px;
+  font-family: 'Inter', system-ui, sans-serif;
+  appearance: none;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.af-select:hover { border-color: #d4d4d8; }
+
+.af-select:focus {
+  border-color: #2563eb;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.af-chevron {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: #71717a;
+  pointer-events: none;
+}
+
+/* Error */
+.af-error {
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-size: 13px;
+}
+
+/* Botones */
+.af-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.af-btn-primary {
+  height: 44px;
+  padding: 0 20px;
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow:
+    0 2px 8px -2px rgba(37, 99, 235, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.2s ease;
+}
+
+.af-btn-primary:hover:not(:disabled) {
+  background: #1d4ed8;
+  box-shadow: 0 6px 16px -4px rgba(37, 99, 235, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.af-btn-primary:active { transform: scale(0.98); }
+
+.af-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.af-btn-secondary {
+  height: 44px;
+  padding: 0 20px;
+  background: #ffffff;
+  color: #18181b;
+  border: 1px solid rgba(228, 228, 231, 0.8);
+  border-radius: 10px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.af-btn-secondary:hover:not(:disabled) {
+  background: #fafafa;
+  border-color: #d4d4d8;
+}
+
+.af-btn-secondary:disabled { opacity: 0.6; cursor: not-allowed; }
