@@ -7,8 +7,8 @@
 .sidebar {
   width: 220px;
   flex-shrink: 0;
-  background: #ffffff;
-  border-right: 1px solid rgba(228, 228, 231, 0.8);
+  background: #0f172a;
+  border-right: 1px solid #1e293b;
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -22,7 +22,7 @@
 /* ── Logo ── */
 .sidebar-logo {
   padding: 20px 20px 16px;
-  border-bottom: 1px solid rgba(228, 228, 231, 0.8);
+  border-bottom: 1px solid #1e293b;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -45,7 +45,7 @@
 .logo-name {
   font-size: 14px;
   font-weight: 600;
-  color: #18181b;
+  color: #f8fafc;
   letter-spacing: -0.2px;
 }
 
@@ -64,7 +64,7 @@
   font-weight: 600;
   letter-spacing: 0.8px;
   text-transform: uppercase;
-  color: #a1a1aa;
+  color: #64748b;
   padding: 12px 10px 5px;
 }
 
@@ -76,7 +76,7 @@
   border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
-  color: #71717a;
+  color: #cbd5e1;
   cursor: pointer;
   transition: all 0.15s ease;
   text-decoration: none;
@@ -86,14 +86,15 @@
 }
 
 .nav-item:hover {
-  background: #f4f4f5;
-  color: #18181b;
+  background: #1e293b;
+  color: #ffffff;
 }
 
 .nav-item.active {
-  background: rgba(37, 99, 235, 0.08);
-  color: #2563eb;
+  background: #1e293b;
+  color: #ffffff;
   font-weight: 600;
+  box-shadow: inset 3px 0 0 #3b82f6;
 }
 
 .nav-icon {
@@ -110,7 +111,7 @@
 /* ── Footer ── */
 .sidebar-footer {
   padding: 14px 16px;
-  border-top: 1px solid rgba(228, 228, 231, 0.8);
+  border-top: 1px solid #1e293b;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -145,7 +146,7 @@
 .user-name {
   font-size: 12px;
   font-weight: 600;
-  color: #18181b;
+  color: #f8fafc;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -153,7 +154,7 @@
 
 .user-role {
   font-size: 11px;
-  color: #a1a1aa;
+  color: #94a3b8;
   text-transform: capitalize;
   white-space: nowrap;
   overflow: hidden;
@@ -164,9 +165,9 @@
   width: 30px;
   height: 30px;
   border-radius: 7px;
-  border: 1px solid rgba(228, 228, 231, 0.8);
-  background: #fff;
-  color: #a1a1aa;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: #94a3b8;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -176,7 +177,7 @@
 }
 
 .sidebar-logout:hover {
-  border-color: #fca5a5;
-  color: #ef4444;
-  background: #fef2f2;
+  border-color: #fda4af;
+  color: #fecdd3;
+  background: #3f1d2e;
 }

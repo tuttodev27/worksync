@@ -1,0 +1,5 @@
+- [x] Confirmar redirección de "+ Nuevo" hacia CandidatoCreatePage.
+- [x] Unificar ruta recruiter a `/recluiter` en AppRouter.
+- [x] Rediseñar `CandidatoCreatePage.tsx` con layout del formulario de la referencia.
+- [x] Actualizar `CandidatoCreatePage.css` con estilos del nuevo formulario.
+- [x] Marcar tareas como completadas.

@@ -4,6 +4,8 @@
 
 .dashboard {
   font-family: 'Inter', system-ui, sans-serif;
+  background: #f8fafc;
+  color: #0f172a;
 }
 
 /* ── Greeting ── */
@@ -14,14 +16,14 @@
 .dash-greeting h1 {
   font-size: 22px;
   font-weight: 700;
-  color: #18181b;
+  color: #0f172a;
   letter-spacing: -0.3px;
   margin-bottom: 4px;
 }
 
 .dash-greeting p {
   font-size: 14px;
-  color: #71717a;
+  color: #64748b;
 }
 
 /* ── Stats ── */
@@ -34,15 +36,15 @@
 
 .stat-card {
   background: #ffffff;
-  border: 1px solid rgba(228, 228, 231, 0.8);
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
   padding: 16px 18px;
   transition: box-shadow 0.2s, border-color 0.2s;
 }
 
 .stat-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
-  border-color: #d4d4d8;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+  border-color: #cbd5e1;
 }
 
 .stat-top {
@@ -55,7 +57,7 @@
 .stat-label {
   font-size: 11px;
   font-weight: 600;
-  color: #a1a1aa;
+  color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -77,14 +79,14 @@
 .stat-value {
   font-size: 24px;
   font-weight: 700;
-  color: #18181b;
+  color: #0f172a;
   line-height: 1;
   margin-bottom: 4px;
 }
 
 .stat-sub {
   font-size: 11px;
-  color: #a1a1aa;
+  color: #64748b;
 }
 
 /* ── Section header ── */
@@ -100,14 +102,14 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: #a1a1aa;
+  color: #64748b;
   white-space: nowrap;
 }
 
 .dash-section-line {
   flex: 1;
   height: 1px;
-  background: rgba(228, 228, 231, 0.8);
+  background: #e2e8f0;
 }
 
 /* ── CRUD Grids ── */
@@ -127,7 +129,7 @@
 /* ── CRUD Card ── */
 .crud-card {
   background: #ffffff;
-  border: 1px solid rgba(228, 228, 231, 0.8);
+  border: 1px solid #e2e8f0;
   border-radius: 14px;
   padding: 22px;
   cursor: pointer;
@@ -149,8 +151,8 @@
 }
 
 .crud-card:hover {
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.09);
-  border-color: #d4d4d8;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.1);
+  border-color: #cbd5e1;
   transform: translateY(-2px);
 }
 
@@ -184,22 +186,22 @@
   font-weight: 500;
   padding: 3px 10px;
   border-radius: 999px;
-  background: #f4f4f5;
-  color: #a1a1aa;
-  border: 1px solid rgba(228, 228, 231, 0.8);
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
 }
 
 .crud-title {
   font-size: 15px;
   font-weight: 600;
-  color: #18181b;
+  color: #0f172a;
   margin-bottom: 5px;
   letter-spacing: -0.2px;
 }
 
 .crud-desc {
   font-size: 12px;
-  color: #71717a;
+  color: #64748b;
   line-height: 1.7;
   margin-bottom: 18px;
 }
@@ -235,13 +237,13 @@
 
 .btn-outline {
   background: #ffffff;
-  color: #18181b;
-  border: 1px solid rgba(228, 228, 231, 0.8);
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
 }
 
 .btn-outline:hover {
-  background: #f4f4f5;
-  border-color: #d4d4d8;
+  background: #f8fafc;
+  border-color: #cbd5e1;
 }
 
 /* ── Responsive ── */
