@@ -47,4 +47,18 @@ export const MODULE_OPTIONS = [
 ] as const;
 
 // API Base URL
-export const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+export const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8083";
+
+// Solicitud Status Options
+export const SOLICITUD_STATUS = [
+  { value: "ABIERTA", label: "Abierta" },
+  { value: "EN_PROCESO", label: "En proceso" },
+  { value: "CERRADA", label: "Cerrada" },
+  { value: "CANCELADA", label: "Cancelada" },
+] as const;
+
+// LocalStorage keys (mock persistence)
+export const STORAGE_KEYS = {
+  candidates: "worksync.candidates",
+  solicitudes: "worksync.solicitudes",
+} as const;

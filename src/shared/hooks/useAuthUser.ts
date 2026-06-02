@@ -21,24 +21,20 @@ interface UseAuthUserReturn {
 
 /**
  * Hook para obtener y validar el usuario del localStorage
- * @returns Objeto con user, estado de autenticación y métodos
  */
 export function useAuthUser(): UseAuthUserReturn {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Validar y parsear el usuario del localStorage
   const parseUser = useCallback((): AuthUser | null => {
     try {
       const stored = localStorage.getItem(AUTH_USER_KEY);
       if (!stored) return null;
-      
+
       const parsed = JSON.parse(stored);
-      // Validar que tenga los campos requeridos
-      if (!parsed.id || !parsed.email) return null;
+      if (!parsed.email || !parsed.token) return null;
       return parsed as AuthUser;
     } catch {
-      // Si los datos están corruptos, limpiamos
       localStorage.removeItem(AUTH_USER_KEY);
       localStorage.removeItem(TOKEN_KEY);
       return null;

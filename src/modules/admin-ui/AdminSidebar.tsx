@@ -131,14 +131,19 @@ const NAV_ITEMS: NavSection[] = [
 export default function AdminSidebar() {
   const { user, logout } = useAuthUser();
 
-  const initials = user?.name
-    ? user.name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .slice(0, 2)
-        .toUpperCase()
-    : "AD";
+  const displayName = user?.name || user?.email || "Admin";
+  const displayRole = user?.role
+    ? user.role === "ADMIN"
+      ? "Administrador"
+      : "Reclutador"
+    : "Usuario";
+
+  const initials = displayName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   const handleLogout = () => {
     logout();
@@ -177,8 +182,8 @@ export default function AdminSidebar() {
         <div className="user-row">
           <div className="user-avatar">{initials}</div>
           <div className="user-info">
-            <div className="user-name">{user?.name || "Admin"}</div>
-            <div className="user-role">{user?.role || "Administrador"}</div>
+            <div className="user-name">{displayName}</div>
+            <div className="user-role">{displayRole}</div>
           </div>
         </div>
         <button
