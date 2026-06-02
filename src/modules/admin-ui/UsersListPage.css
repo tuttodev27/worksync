@@ -1,0 +1,230 @@
+/* ============================================================
+   WorkSync ATS — UsersListPage.css
+   Estilos para el listado de usuarios (tabla).
+   Importa DESPUÉS de AdminPages.css.
+   ============================================================ */
+
+.users-page {
+  width: 100%;
+}
+
+/* ── Acciones del header (filtro + botón crear) ── */
+.users-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.users-filter-wrapper {
+  width: 160px;
+}
+
+.users-filter {
+  height: 40px;
+  width: 100%;
+  padding: 0 36px 0 14px;
+  border: 1px solid rgba(228, 228, 231, 0.8);
+  border-radius: 10px;
+  background: #ffffff;
+  color: #18181b;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%2371717a' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M5 7.5l5 5 5-5'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.users-filter:hover  { border-color: #d4d4d8; }
+.users-filter:focus  {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* ── Error banner ── */
+.users-error {
+  margin-bottom: 20px;
+}
+
+/* ── Tabla ── */
+.users-table-wrapper {
+  background: #ffffff;
+  border: 1px solid rgba(228, 228, 231, 0.8);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(24, 24, 27, 0.04);
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+}
+
+.users-table thead {
+  background: #fafafa;
+}
+
+.users-table thead th {
+  text-align: left;
+  font-weight: 600;
+  color: #71717a;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(228, 228, 231, 0.8);
+  white-space: nowrap;
+}
+
+.users-table tbody td {
+  padding: 16px 20px;
+  color: #18181b;
+  border-bottom: 1px solid rgba(228, 228, 231, 0.6);
+  vertical-align: middle;
+}
+
+.users-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.users-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.users-table tbody tr:hover {
+  background: #fafafa;
+}
+
+.users-cell-id {
+  color: #71717a;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.users-cell-name {
+  font-weight: 600;
+  color: #18181b;
+}
+
+.users-cell-email {
+  color: #52525b;
+}
+
+.users-cell-phone {
+  color: #71717a;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ── Chips de roles ── */
+.users-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.users-roles-empty {
+  color: #a1a1aa;
+  font-size: 12px;
+}
+
+.users-role-chip {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  background: rgba(37, 99, 235, 0.08);
+  color: #2563eb;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* ── Estado (activo / inactivo) ── */
+.users-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.users-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: currentColor;
+}
+
+.users-status-active {
+  background: rgba(16, 185, 129, 0.1);
+  color: #047857;
+}
+
+.users-status-inactive {
+  background: rgba(113, 113, 122, 0.12);
+  color: #52525b;
+}
+
+/* ── Estado vacío / loading ── */
+.users-empty {
+  text-align: center;
+  padding: 48px 20px;
+  color: #a1a1aa;
+  font-size: 14px;
+}
+
+/* ── Acciones de fila ── */
+.users-row-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.users-delete-btn {
+  height: 32px;
+  padding: 0 12px;
+  background: transparent;
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  border-radius: 8px;
+  color: #b91c1c;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.users-delete-btn:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.06);
+  border-color: rgba(220, 38, 38, 0.45);
+}
+
+.users-delete-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.users-delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .users-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .users-table {
+    min-width: 720px;
+  }
+}

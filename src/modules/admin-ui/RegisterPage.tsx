@@ -1,16 +1,25 @@
 /**
- * RegisterPage - Refactorizado con principios SOLID
+ * RegisterPage - Crear usuario desde el panel admin
  * SRP: Solo maneja la presentación del formulario
- * La lógica de negocio está en useRegister hook
+ * La lógica de negocio está en useUserCreate hook
  */
 
-import { useRegister } from "../auth/application/useRegister";
-import { USER_TYPES, COUNTRY_CODES } from "../../shared/constants/forms";
+import { useUserCreate } from "../../modules/admin/application/useUserCreate";
+import { COUNTRY_CODES } from "../../shared/constants/forms";
 import "./RegisterPage.css";
 
 export default function RegisterPage() {
-  const { form, error, loading, handleChange, handleSubmit, handleCancel } =
-    useRegister();
+  const {
+    form,
+    error,
+    loading,
+    handleChange,
+    handleSubmit,
+    handleCancel,
+    availableRoles,
+    loadingRoles,
+    rolesError,
+  } = useUserCreate();
 
   return (
     <div className="form-panel">
@@ -128,6 +137,7 @@ export default function RegisterPage() {
                 value={form.password}
                 onChange={handleChange}
                 required
+                minLength={8}
               />
             </div>
 
@@ -144,34 +154,38 @@ export default function RegisterPage() {
                 value={form.rePassword}
                 onChange={handleChange}
                 required
+                minLength={8}
               />
             </div>
           </div>
 
           <div className="form-group">
-            <label htmlFor="userType" className="form-label">
-              Tipo de usuario
+            <label htmlFor="role" className="form-label">
+              Rol
             </label>
 
             <div className="select-wrapper">
               <select
-                id="userType"
-                name="userType"
-                value={form.userType}
+                id="role"
+                name="role"
+                value={form.role}
                 onChange={handleChange}
                 required
+                disabled={loadingRoles}
               >
-                {USER_TYPES.map((option) => (
-                  <option
-                    key={option.value}
-                    value={option.value}
-                    disabled={option.value === ""}
-                  >
-                    {option.label}
+                <option value="" disabled>
+                  {loadingRoles ? "Cargando roles..." : "Selecciona un rol"}
+                </option>
+                {availableRoles.map((role) => (
+                  <option key={role} value={role}>
+                    {role}
                   </option>
                 ))}
               </select>
             </div>
+            {rolesError && (
+              <small className="form-hint form-hint-error">{rolesError}</small>
+            )}
           </div>
 
           <div className="form-actions">

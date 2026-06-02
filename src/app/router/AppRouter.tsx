@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import LoginPage from "../../modules/auth/ui/pages/LoginPage";
 import ForgotPasswordPage from "../../modules/auth/ui/pages/ForgotPasswordPage";
@@ -6,6 +6,7 @@ import ForgotPasswordPage from "../../modules/auth/ui/pages/ForgotPasswordPage";
 import AdminLayout from "../../modules/admin-ui/AdminLayout";
 import AdminDashboard from "../../modules/admin-ui/AdminDashboard";
 
+import UsersListPage from "../../modules/admin-ui/UsersListPage";
 import RegisterPage from "../../modules/admin-ui/RegisterPage";
 import RolesPage from "../../modules/admin-ui/RolesPage";
 import ModuloPage from "../../modules/admin-ui/ModuloPage";
@@ -19,34 +20,12 @@ import MenuCreatePage from "../../modules/admin-ui/MenuCreatePage";
 import RecluiterLayout from "../../modules/recluiter-ui/RecluiterLayout";
 import RecluiterDashboard from "../../modules/recluiter-ui/RecluiterDashboard";
 import CandidatoCreatePage from "../../modules/recluiter-ui/CandidatoCreatePage";
+import SolicitudListPage from "../../modules/recluiter-ui/SolicitudListPage";
+import SolicitudCreatePage from "../../modules/recluiter-ui/SolicitudCreatePage";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem("token");
   return token ? children : <Navigate to="/login" replace />;
-}
-
-function UsersPage() {
-  return (
-    <div style={{ padding: 32 }}>
-      <h2>Usuarios</h2>
-
-      <Link to="/admin/users/create">
-        <button
-          style={{
-            marginTop: 16,
-            padding: "10px 16px",
-            background: "#2563eb",
-            color: "#fff",
-            border: "none",
-            borderRadius: 8,
-            cursor: "pointer",
-          }}
-        >
-          + Crear usuario
-        </button>
-      </Link>
-    </div>
-  );
 }
 
 export default function AppRouter() {
@@ -70,7 +49,7 @@ export default function AppRouter() {
         >
           <Route index element={<AdminDashboard />} />
 
-          <Route path="users" element={<UsersPage />} />
+          <Route path="users" element={<UsersListPage />} />
           <Route path="users/create" element={<RegisterPage />} />
 
           <Route path="roles" element={<RolesPage />} />
@@ -101,6 +80,9 @@ export default function AppRouter() {
         >
           <Route index element={<RecluiterDashboard />} />
           <Route path="candidates/new" element={<CandidatoCreatePage />} />
+          <Route path="solicitudes" element={<SolicitudListPage />} />
+          <Route path="solicitudes/new" element={<SolicitudCreatePage />} />
+          <Route path="solicitudes/:id" element={<SolicitudCreatePage />} />
         </Route>
 
         {/* 🔥 FALLBACK */}
