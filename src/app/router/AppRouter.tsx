@@ -9,10 +9,12 @@ import AdminDashboard from "../../modules/admin-ui/AdminDashboard";
 import UsersListPage from "../../modules/admin-ui/UsersListPage";
 import RegisterPage from "../../modules/admin-ui/RegisterPage";
 import RolesPage from "../../modules/admin-ui/RolesPage";
+import PermissionListPage from "../../modules/admin-ui/PermissionListPage";
 import ModuloPage from "../../modules/admin-ui/ModuloPage";
 import MenusPage from "../../modules/admin-ui/MenusPage";
 
 import RoleCreatePage from "../../modules/admin-ui/RoleCreatePage";
+import PermissionCreatePage from "../../modules/admin-ui/PermissionCreatePage";
 import ModuloCreatePage from "../../modules/admin-ui/ModuloCreatePage";
 import MenuCreatePage from "../../modules/admin-ui/MenuCreatePage";
 
@@ -62,12 +64,8 @@ export default function AppRouter() {
           <Route path="menu" element={<MenusPage />} />
           <Route path="menu/new" element={<MenuCreatePage />} />
 
-          <Route
-            path="permissions"
-            element={
-              <div style={{ padding: 32 }}>CRUD Permisos — próximamente</div>
-            }
-          />
+          <Route path="permissions" element={<PermissionListPage />} />
+          <Route path="permissions/create" element={<PermissionCreatePage />} />
         </Route>
 
         {/* 🔥 RECRUITER */}
