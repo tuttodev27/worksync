@@ -46,8 +46,12 @@ export const MODULE_OPTIONS = [
   { id: "admin", name: "Administración" },
 ] as const;
 
-// API Base URL
+// API Base URLs
 export const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8083";
+export const API_USERS_URL =
+  import.meta.env.VITE_USERS_URL ?? "http://localhost:8083";
+export const API_CANDIDATE_URL =
+  import.meta.env.VITE_CANDIDATE_URL ?? "http://localhost:8084";
 
 // Solicitud Status Options
 export const SOLICITUD_STATUS = [

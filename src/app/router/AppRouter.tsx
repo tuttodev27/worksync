@@ -22,8 +22,7 @@ import RecluiterDashboard from "../../modules/recluiter-ui/RecluiterDashboard";
 import CandidateListPage from "../../modules/recluiter-ui/CandidateListPage";
 import CandidateDetailPage from "../../modules/recluiter-ui/CandidateDetailPage";
 import CandidatoCreatePage from "../../modules/recluiter-ui/CandidatoCreatePage";
-import SolicitudListPage from "../../modules/recluiter-ui/SolicitudListPage";
-import SolicitudCreatePage from "../../modules/recluiter-ui/SolicitudCreatePage";
+
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem("token");
@@ -84,9 +83,6 @@ export default function AppRouter() {
           <Route path="candidates" element={<CandidateListPage />} />
           <Route path="candidates/new" element={<CandidatoCreatePage />} />
           <Route path="candidates/:id" element={<CandidateDetailPage />} />
-          <Route path="solicitudes" element={<SolicitudListPage />} />
-          <Route path="solicitudes/new" element={<SolicitudCreatePage />} />
-          <Route path="solicitudes/:id" element={<SolicitudCreatePage />} />
         </Route>
 
         {/* 🔥 FALLBACK */}

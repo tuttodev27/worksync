@@ -20,6 +20,7 @@ export class HttpError extends Error {
 type RequestOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
   auth?: boolean;
+  baseUrl?: string;
 };
 
 const TOKEN_STORAGE_KEY = "token";
@@ -53,7 +54,7 @@ export async function httpRequest<T = unknown>(
   path: string,
   options: RequestOptions = {}
 ): Promise<T> {
-  const { body, auth = true, headers, ...rest } = options;
+  const { body, auth = true, headers, baseUrl, ...rest } = options;
 
   const finalHeaders = new Headers(headers);
   if (body !== undefined && !(body instanceof FormData)) {
@@ -66,7 +67,8 @@ export async function httpRequest<T = unknown>(
     }
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const url = `${baseUrl ?? API_BASE_URL}${path}`;
+  const response = await fetch(url, {
     ...rest,
     headers: finalHeaders,
     body:
