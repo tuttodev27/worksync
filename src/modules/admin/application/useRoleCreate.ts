@@ -1,23 +1,21 @@
-/**
- * Hook para crear rol - Application Layer
- * SRP: Este hook SOLO maneja la lógica de crear roles
- */
-
 import { useState, useCallback, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import type { RoleFormData } from "../../../shared/types/forms";
-import { API_BASE_URL } from "../../../shared/constants/forms";
+import type { RoleRepository } from "../domain/ports/RoleRepository";
+import { roleRepository } from "../infrastructure/RoleApiRepository";
 
 interface UseRoleCreateReturn {
   form: RoleFormData;
   error: string;
   loading: boolean;
-  handleChange: (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  handleChange: (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
   handleSubmit: (e: FormEvent) => Promise<void>;
   handleCancel: () => void;
 }
 
-export function useRoleCreate(): UseRoleCreateReturn {
+export function useRoleCreate(
+  repository: RoleRepository = roleRepository
+): UseRoleCreateReturn {
   const navigate = useNavigate();
 
   const [form, setForm] = useState<RoleFormData>({
@@ -30,7 +28,7 @@ export function useRoleCreate(): UseRoleCreateReturn {
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
       const { name, value } = e.target;
       setForm((prev) => ({ ...prev, [name]: value }));
     },
@@ -57,24 +55,11 @@ export function useRoleCreate(): UseRoleCreateReturn {
 
       setLoading(true);
       try {
-        const token = localStorage.getItem("token");
-        const res = await fetch(`${API_BASE_URL}/roles`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            name: form.name.trim(),
-            description: form.description.trim(),
-            active: form.active === "true",
-          }),
+        await repository.create({
+          name: form.name.trim(),
+          description: form.description.trim(),
+          active: form.active === "true",
         });
-
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data?.message ?? "No pudimos crear el rol.");
-        }
 
         navigate("/admin/roles");
       } catch (err) {
@@ -87,7 +72,7 @@ export function useRoleCreate(): UseRoleCreateReturn {
         setLoading(false);
       }
     },
-    [form, navigate]
+    [form, navigate, repository]
   );
 
   return {

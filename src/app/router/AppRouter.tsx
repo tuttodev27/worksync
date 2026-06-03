@@ -55,7 +55,7 @@ export default function AppRouter() {
           <Route path="users/create" element={<RegisterPage />} />
 
           <Route path="roles" element={<RolesPage />} />
-          <Route path="roles/new" element={<RoleCreatePage />} />
+          <Route path="roles/create" element={<RoleCreatePage />} />
 
           <Route path="modules" element={<ModuloPage />} />
           <Route path="modules/new" element={<ModuloCreatePage />} />
