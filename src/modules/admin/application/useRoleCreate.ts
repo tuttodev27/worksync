@@ -1,12 +1,8 @@
-/**
- * Hook para crear rol - Application Layer
- * SRP: Este hook SOLO maneja la lógica de crear roles
- */
-
 import { useState, useCallback, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import type { RoleFormData } from "../../../shared/types/forms";
-import { API_USERS_URL } from "../../../shared/constants/forms";
+import type { RoleRepository } from "../domain/ports/RoleRepository";
+import { roleRepository } from "../infrastructure/RoleApiRepository";
 
 interface UseRoleCreateReturn {
   form: RoleFormData;
@@ -17,15 +13,18 @@ interface UseRoleCreateReturn {
   handleCancel: () => void;
 }
 
-export function useRoleCreate(): UseRoleCreateReturn {
+const initialForm: RoleFormData = {
+  name: "",
+  description: "",
+  active: "",
+};
+
+export function useRoleCreate(
+  repository: RoleRepository = roleRepository
+): UseRoleCreateReturn {
   const navigate = useNavigate();
 
-  const [form, setForm] = useState<RoleFormData>({
-    name: "",
-    description: "",
-    active: "",
-  });
-
+  const [form, setForm] = useState<RoleFormData>(initialForm);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -57,24 +56,11 @@ export function useRoleCreate(): UseRoleCreateReturn {
 
       setLoading(true);
       try {
-        const token = localStorage.getItem("token");
-        const res = await fetch(`${API_USERS_URL}/roles`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            name: form.name.trim(),
-            description: form.description.trim(),
-            active: form.active === "true",
-          }),
+        await repository.create({
+          name: form.name.trim(),
+          description: form.description.trim(),
+          active: form.active === "true",
         });
-
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data?.message ?? "No pudimos crear el rol.");
-        }
 
         navigate("/admin/roles");
       } catch (err) {
@@ -87,7 +73,7 @@ export function useRoleCreate(): UseRoleCreateReturn {
         setLoading(false);
       }
     },
-    [form, navigate]
+    [form, navigate, repository]
   );
 
   return {
