@@ -23,6 +23,14 @@ export default function CrudCard({
       navigate("/admin/users/create");
       return;
     }
+    if (to === "/admin/roles") {
+      navigate("/admin/roles/create");
+      return;
+    }
+    if (to === "/admin/permissions") {
+      navigate("/admin/permissions/create");
+      return;
+    }
     if (to === "/recluiter/candidates") {
       navigate("/recluiter/candidates/new");
       return;

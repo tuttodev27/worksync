@@ -1,0 +1,200 @@
+/* ============================================================
+   WorkSync ATS — PermissionListPage.css
+   Estilos para el listado de permisos (tabla).
+   Importa DESPUÉS de AdminPages.css.
+   ============================================================ */
+
+.permissions-page {
+  width: 100%;
+}
+
+.permissions-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.permissions-filter-wrapper {
+  width: 160px;
+}
+
+.permissions-filter {
+  height: 40px;
+  width: 100%;
+  padding: 0 36px 0 14px;
+  border: 1px solid rgba(228, 228, 231, 0.8);
+  border-radius: 10px;
+  background: #ffffff;
+  color: #18181b;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%2371717a' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M5 7.5l5 5 5-5'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.permissions-filter:hover  { border-color: #d4d4d8; }
+.permissions-filter:focus  {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.permissions-error {
+  margin-bottom: 20px;
+}
+
+.permissions-table-wrapper {
+  background: #ffffff;
+  border: 1px solid rgba(228, 228, 231, 0.8);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(24, 24, 27, 0.04);
+}
+
+.permissions-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+}
+
+.permissions-table thead {
+  background: #fafafa;
+}
+
+.permissions-table thead th {
+  text-align: left;
+  font-weight: 600;
+  color: #71717a;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(228, 228, 231, 0.8);
+  white-space: nowrap;
+}
+
+.permissions-table tbody td {
+  padding: 16px 20px;
+  color: #18181b;
+  border-bottom: 1px solid rgba(228, 228, 231, 0.6);
+  vertical-align: middle;
+}
+
+.permissions-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.permissions-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.permissions-table tbody tr:hover {
+  background: #fafafa;
+}
+
+.permissions-cell-id {
+  color: #71717a;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.permissions-cell-code {
+  font-weight: 600;
+  color: #18181b;
+  font-family: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+  letter-spacing: 0.01em;
+}
+
+.permissions-cell-description {
+  color: #52525b;
+}
+
+.permissions-cell-module {
+  color: #52525b;
+  font-weight: 500;
+}
+
+.permissions-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.permissions-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: currentColor;
+}
+
+.permissions-status-active {
+  background: rgba(16, 185, 129, 0.1);
+  color: #047857;
+}
+
+.permissions-status-inactive {
+  background: rgba(113, 113, 122, 0.12);
+  color: #52525b;
+}
+
+.permissions-empty {
+  text-align: center;
+  padding: 48px 20px;
+  color: #a1a1aa;
+  font-size: 14px;
+}
+
+.permissions-row-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.permissions-delete-btn {
+  height: 32px;
+  padding: 0 12px;
+  background: transparent;
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  border-radius: 8px;
+  color: #b91c1c;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.permissions-delete-btn:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.06);
+  border-color: rgba(220, 38, 38, 0.45);
+}
+
+.permissions-delete-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.permissions-delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .permissions-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .permissions-table {
+    min-width: 650px;
+  }
+}
