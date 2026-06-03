@@ -1,12 +1,9 @@
-/**
- * Hook para módulo - Application Layer
- * SRP: Este hook SOLO maneja la lógica de módulos
- */
-
 import { useState, useCallback, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import type { ModuloFormData } from "../../../shared/types/forms";
 import { STATUS_OPTIONS } from "../../../shared/constants/forms";
+import type { ModuleRepository } from "../domain/ports/ModuleRepository";
+import { moduleRepository } from "../infrastructure/ModuleApiRepository";
 
 interface UseModuleReturn {
   form: ModuloFormData;
@@ -24,7 +21,9 @@ const initialForm: ModuloFormData = {
   status: "active",
 };
 
-export function useModule(onSuccess?: () => void): UseModuleReturn {
+export function useModule(
+  repository: ModuleRepository = moduleRepository
+): UseModuleReturn {
   const navigate = useNavigate();
 
   const [form, setForm] = useState<ModuloFormData>(initialForm);
@@ -61,15 +60,13 @@ export function useModule(onSuccess?: () => void): UseModuleReturn {
 
       setLoading(true);
       try {
-        // TODO: conectar con backend Spring Boot cuando esté disponible
-        await new Promise((r) => setTimeout(r, 700));
-        console.log("Módulo creado:", form);
-        
-        if (onSuccess) {
-          onSuccess();
-        } else {
-          navigate("/admin/modules");
-        }
+        await repository.create({
+          name: form.name.trim(),
+          description: form.description.trim(),
+          active: form.status === "active",
+        });
+
+        navigate("/admin/modules");
       } catch (err) {
         setError(
           err instanceof Error
@@ -80,7 +77,7 @@ export function useModule(onSuccess?: () => void): UseModuleReturn {
         setLoading(false);
       }
     },
-    [form, navigate, onSuccess]
+    [form, navigate, repository]
   );
 
   return {
