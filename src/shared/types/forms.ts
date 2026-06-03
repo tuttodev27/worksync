@@ -128,6 +128,46 @@ export interface CandidatoFormProps {
   initialData?: Partial<CandidatoFormData>;
 }
 
+// Saved Candidate entity (persisted in localStorage)
+export interface Candidate extends CandidatoFormData {
+  id: string;
+  createdAt: string;
+}
+
+// Solicitud Types
+export type SolicitudStatus =
+  | "ABIERTA"
+  | "EN_PROCESO"
+  | "CERRADA"
+  | "CANCELADA";
+
+export interface Solicitud {
+  id: string;
+  title: string;
+  description: string;
+  requiredTechnicalSkills: string;
+  requiredExperience: string;
+  status: SolicitudStatus;
+  createdAt: string;
+  assignedCandidateIds: string[];
+}
+
+export interface SolicitudFormData {
+  title: string;
+  description: string;
+  requiredTechnicalSkills: string;
+  requiredExperience: string;
+  status: SolicitudStatus;
+}
+
+// Matcher
+export interface MatchResult {
+  candidate: Candidate;
+  score: number;
+  matchedSkills: string[];
+  missingSkills: string[];
+}
+
 // Forgot Password Types
 export interface ForgotPasswordFormData {
   email: string;

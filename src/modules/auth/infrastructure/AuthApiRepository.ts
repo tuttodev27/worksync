@@ -7,7 +7,7 @@
 import type { AuthRepository, AuthResult } from "../domain/ports/AuthRepository";
 import type { LoginFormData } from "../../../shared/types/forms";
 import type { AuthUser, UserRole } from "../../../shared/types/auth.type";
-import { API_BASE_URL } from "../../../shared/constants/forms";
+import { API_USERS_URL } from "../../../shared/constants/forms";
 import { httpRequest, HttpError } from "../../../shared/services/httpClient";
 import { decodeJwt } from "../../../shared/utils/jwt";
 
@@ -43,7 +43,7 @@ function buildAuthUser(token: string, fallbackEmail: string): AuthUser {
 export class AuthApiRepository implements AuthRepository {
   private baseUrl: string;
 
-  constructor(baseUrl: string = API_BASE_URL) {
+  constructor(baseUrl: string = API_USERS_URL) {
     this.baseUrl = baseUrl;
   }
 
@@ -53,6 +53,7 @@ export class AuthApiRepository implements AuthRepository {
         method: "POST",
         body: credentials,
         auth: false,
+        baseUrl: this.baseUrl,
       });
 
       const user = buildAuthUser(response.token, credentials.email);

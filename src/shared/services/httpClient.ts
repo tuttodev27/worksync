@@ -1,9 +1,8 @@
 /**
  * Cliente HTTP compartido
- * SRP: Centraliza la configuración de fetch, headers y manejo de errores
+ * SRP: Centraliza la configuración de fetch, headers y manejo de errores.
+ * Acepta una baseUrl por llamada para soportar multiples microservicios.
  */
-
-import { API_BASE_URL } from "../constants/forms";
 
 export class HttpError extends Error {
   status: number;
@@ -20,6 +19,7 @@ export class HttpError extends Error {
 type RequestOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
   auth?: boolean;
+  baseUrl?: string;
 };
 
 const TOKEN_STORAGE_KEY = "token";
@@ -51,9 +51,9 @@ async function parseErrorBody(response: Response): Promise<string> {
 
 export async function httpRequest<T = unknown>(
   path: string,
-  options: RequestOptions = {}
+  options: RequestOptions = {},
 ): Promise<T> {
-  const { body, auth = true, headers, ...rest } = options;
+  const { body, auth = true, headers, baseUrl, ...rest } = options;
 
   const finalHeaders = new Headers(headers);
   if (body !== undefined && !(body instanceof FormData)) {
@@ -66,7 +66,8 @@ export async function httpRequest<T = unknown>(
     }
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const url = `${baseUrl ?? ""}${path}`;
+  const response = await fetch(url, {
     ...rest,
     headers: finalHeaders,
     body:
