@@ -1,11 +1,8 @@
-/**
- * Hook para crear menú - Application Layer
- * SRP: Este hook SOLO maneja la lógica de crear menús
- */
-
 import { useState, useCallback, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import type { MenuFormData } from "../../../shared/types/forms";
+import type { MenuRepository } from "../domain/ports/MenuRepository";
+import { menuRepository } from "../infrastructure/MenuApiRepository";
 
 interface UseMenuCreateReturn {
   form: MenuFormData;
@@ -16,15 +13,18 @@ interface UseMenuCreateReturn {
   handleCancel: () => void;
 }
 
-export function useMenuCreate(): UseMenuCreateReturn {
+const initialForm: MenuFormData = {
+  title: "",
+  path: "",
+  active: "true",
+};
+
+export function useMenuCreate(
+  repository: MenuRepository = menuRepository
+): UseMenuCreateReturn {
   const navigate = useNavigate();
 
-  const [form, setForm] = useState<MenuFormData>({
-    title: "",
-    path: "",
-    active: "true",
-  });
-
+  const [form, setForm] = useState<MenuFormData>(initialForm);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -57,10 +57,7 @@ export function useMenuCreate(): UseMenuCreateReturn {
 
       setLoading(true);
       try {
-        //TODO: conectar con backend cuando esté disponible
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        
-        console.log("Menú creado:", {
+        await repository.create({
           title: form.title.trim(),
           path: form.path.trim(),
           active: form.active === "true",
@@ -77,7 +74,7 @@ export function useMenuCreate(): UseMenuCreateReturn {
         setLoading(false);
       }
     },
-    [form, navigate]
+    [form, navigate, repository]
   );
 
   return {
