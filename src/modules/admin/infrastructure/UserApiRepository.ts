@@ -4,6 +4,7 @@
  */
 
 import { httpRequest, HttpError } from "../../../shared/services/httpClient";
+import { API_USERS_URL } from "../../../shared/constants/forms";
 import type { UserRepository } from "../domain/ports/UserRepository";
 import type {
   User,
@@ -28,9 +29,17 @@ function mapError(err: unknown): Error {
 }
 
 export class UserApiRepository implements UserRepository {
+  private baseUrl: string;
+
+  constructor(baseUrl: string = API_USERS_URL) {
+    this.baseUrl = baseUrl;
+  }
+
   async list(active?: boolean): Promise<User[]> {
     try {
-      return await httpRequest<User[]>(`/api/users${buildQuery(active)}`);
+      return await httpRequest<User[]>(`/api/users${buildQuery(active)}`, {
+        baseUrl: this.baseUrl,
+      });
     } catch (err) {
       throw mapError(err);
     }
@@ -38,7 +47,9 @@ export class UserApiRepository implements UserRepository {
 
   async getById(id: number): Promise<User> {
     try {
-      return await httpRequest<User>(`/api/users/${id}`);
+      return await httpRequest<User>(`/api/users/${id}`, {
+        baseUrl: this.baseUrl,
+      });
     } catch (err) {
       throw mapError(err);
     }
@@ -49,6 +60,7 @@ export class UserApiRepository implements UserRepository {
       return await httpRequest<User>("/api/users", {
         method: "POST",
         body: payload,
+        baseUrl: this.baseUrl,
       });
     } catch (err) {
       throw mapError(err);
@@ -60,6 +72,7 @@ export class UserApiRepository implements UserRepository {
       return await httpRequest<User>(`/api/users/${id}`, {
         method: "PUT",
         body: payload,
+        baseUrl: this.baseUrl,
       });
     } catch (err) {
       throw mapError(err);
@@ -70,6 +83,7 @@ export class UserApiRepository implements UserRepository {
     try {
       await httpRequest<void>(`/api/users/${id}`, {
         method: "DELETE",
+        baseUrl: this.baseUrl,
       });
     } catch (err) {
       throw mapError(err);
@@ -78,7 +92,9 @@ export class UserApiRepository implements UserRepository {
 
   async listAvailableRoles(): Promise<string[]> {
     try {
-      return await httpRequest<string[]>("/api/users/roles");
+      return await httpRequest<string[]>("/api/users/roles", {
+        baseUrl: this.baseUrl,
+      });
     } catch (err) {
       throw mapError(err);
     }

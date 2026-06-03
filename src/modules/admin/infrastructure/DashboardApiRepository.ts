@@ -4,6 +4,7 @@
  */
 
 import { httpRequest, HttpError } from "../../../shared/services/httpClient";
+import { API_USERS_URL } from "../../../shared/constants/forms";
 import type { User } from "../domain/models/User";
 import type { DashboardSnapshot } from "../domain/models/Dashboard";
 
@@ -40,11 +41,11 @@ function safeCount<T>(items: T[] | undefined): { total: number; active: number }
 export class DashboardApiRepository {
   async fetchSnapshot(): Promise<DashboardSnapshot> {
     const results = await Promise.allSettled([
-      httpRequest<User[]>("/api/users"),
-      httpRequest<RoleLite[]>("/api/roles"),
-      httpRequest<PermissionLite[]>("/api/permissions"),
-      httpRequest<ModuleLite[]>("/api/modules"),
-      httpRequest<MenuLite[]>("/api/menus"),
+      httpRequest<User[]>("/api/users", { baseUrl: API_USERS_URL }),
+      httpRequest<RoleLite[]>("/api/roles", { baseUrl: API_USERS_URL }),
+      httpRequest<PermissionLite[]>("/api/permissions", { baseUrl: API_USERS_URL }),
+      httpRequest<ModuleLite[]>("/api/modules", { baseUrl: API_USERS_URL }),
+      httpRequest<MenuLite[]>("/api/menus", { baseUrl: API_USERS_URL }),
     ]);
 
     const [usersRes, rolesRes, permsRes, modulesRes, menusRes] = results;
