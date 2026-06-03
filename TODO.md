@@ -3,3 +3,7 @@
 - [x] Rediseñar `CandidatoCreatePage.tsx` con layout del formulario de la referencia.
 - [x] Actualizar `CandidatoCreatePage.css` con estilos del nuevo formulario.
 - [x] Marcar tareas como completadas.
+- [x] Revisar compatibilidad de `useCandidate.ts` con el payload que se autocompleta desde CV.
+- [x] Reemplazar lógica condicionada por nombre de archivo en `CandidatoCreatePage.tsx` por extracción genérica.
+- [x] Evitar valores mock fijos para CV no-Pablo y usar fallbacks neutros.
+- [x] Marcar nuevas tareas como completadas.

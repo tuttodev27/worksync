@@ -68,7 +68,7 @@ export default function RecluiterSidebar() {
         </NavLink>
 
         <NavLink
-          to="/recluiter/jobs"
+          to="/recluiter/solicitudes"
           className={({ isActive }) =>
             isActive ? "nav-link active" : "nav-link"
           }

@@ -1,13 +1,195 @@
 /**
  * CandidatoCreatePage
  * Formulario ajustado a requerimiento de ficha de candidato (2 columnas)
+ * Los selects se alimentan desde los catalogos de ats-postulant.
  */
 
 import { useState, type ChangeEvent } from "react";
+import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
+import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { useCandidate } from "../recluiter/application/useCandidate";
+import { useCatalogs } from "../recluiter/application/useCatalogs";
 import "./CandidatoCreatePage.css";
 
+GlobalWorkerOptions.workerSrc = pdfWorker;
+
+const extractEmail = (text: string): string => {
+  const match = text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+  return match?.[0] ?? "";
+};
+
+const extractPhone = (text: string): string => {
+  const match =
+    text.match(
+      /(?:\+?\d{1,3}[\s-]?)?(?:\(?\d{2,4}\)?[\s-]?)?\d{3,4}[\s-]?\d{3,4}/,
+    ) ?? null;
+  return match?.[0]?.trim() ?? "";
+};
+
+const extractCountryPhone = (phone: string, text: string): string => {
+  const source = `${phone} ${text}`;
+  const codeMatch = source.match(/\+(56|57|53|54|51|52|58|34|1)\b/);
+  return codeMatch ? `+${codeMatch[1]}` : "";
+};
+
+const mapYearsToRange = (years: number): string => {
+  if (years >= 8) return "8+";
+  if (years >= 5) return "5-7";
+  if (years >= 2) return "2-4";
+  return "0-1";
+};
+
+const extractExperienceYears = (text: string): string => {
+  const normalized = text.toLowerCase();
+
+  if (/8\+|más de 8|more than 8/.test(normalized)) return "8+";
+  if (/5\s*(a|-)\s*7|5\s*-\s*7/.test(normalized)) return "5-7";
+  if (/2\s*(a|-)\s*4|2\s*-\s*4/.test(normalized)) return "2-4";
+  if (/0\s*(a|-)\s*1|0\s*-\s*1/.test(normalized)) return "0-1";
+
+  const explicitYears = normalized.match(/(\d+)\s*(años|anos|years?)/);
+  if (explicitYears) {
+    return mapYearsToRange(Number(explicitYears[1]));
+  }
+
+  const monthMatches = normalized.match(/(\d+)\s*(meses|months?)/g);
+  if (monthMatches?.length) {
+    const totalMonths = monthMatches
+      .map((m) => Number(m.match(/\d+/)?.[0] ?? 0))
+      .reduce((acc, n) => acc + n, 0);
+    if (totalMonths > 0) {
+      return mapYearsToRange(totalMonths / 12);
+    }
+  }
+
+  return "";
+};
+
+const extractEducationLevel = (text: string): string => {
+  const t = text.toLowerCase();
+  if (/postgrado|mag[ií]ster|maestr[ií]a|mba|doctorado|phd/.test(t))
+    return "postgrado";
+  if (/universidad|universitario|ingenier[ií]a|licenciatura/.test(t))
+    return "universitario";
+  if (/t[eé]cnico|tecnico/.test(t)) return "tecnico";
+  if (/secundaria|bachiller/.test(t)) return "secundaria";
+  return "";
+};
+
+const extractLanguage = (text: string): string => {
+  const t = text.toLowerCase();
+  if (/ingl[eé]s|english/.test(t)) return "ingles";
+  if (/franc[eé]s|french/.test(t)) return "frances";
+  if (/espa[ñn]ol|spanish/.test(t)) return "espanol";
+  return "";
+};
+
+const extractLanguageLevel = (text: string): string => {
+  const t = text.toLowerCase();
+  const level = t.match(/\b(a1|a2|b1|b2|c1|c2)\b/);
+  if (level) return level[1];
+  if (/b[aá]sico|basic/.test(t)) return "a2";
+  if (/intermedio|intermediate/.test(t)) return "b1";
+  if (/avanzado|advanced|fluent/.test(t)) return "c1";
+  return "";
+};
+
+const extractProfessionalProfile = (text: string): string => {
+  const lines = text
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  const byKeyword = lines.find(
+    (l) =>
+      /(ingeniero|engineer|developer|desarrollador|analyst|analista|arquitecto|consultor|cargo|position|rol)/i.test(
+        l,
+      ) && l.length <= 120,
+  );
+
+  if (!byKeyword) return "";
+
+  return byKeyword
+    .replace(/\s*\+?\d[\d\s-]{6,}.*/g, "")
+    .replace(/\s+[|•-]\s+.*/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
+const extractTechnicalSkills = (text: string): string => {
+  const matches = text.match(
+    /\b(Java|TypeScript|JavaScript|React|Angular|Vue|Node|Spring|Spring Boot|SQL|PostgreSQL|MySQL|MongoDB|Docker|Kubernetes|AWS|Azure|GCP|Kafka|Python|C#|\.NET)\b/gi,
+  );
+  if (!matches?.length) return "";
+  const unique = Array.from(new Set(matches.map((m) => m.trim())));
+  return unique.join(", ");
+};
+
+const splitName = (line: string): { firstName: string; lastName: string } => {
+  const cleaned = line
+    .replace(/[^\p{L}\s'-]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const stopwords = new Set([
+    "cv",
+    "curriculum",
+    "vitae",
+    "resume",
+    "hoja",
+    "de",
+    "vida",
+    "perfil",
+    "professional",
+  ]);
+
+  const parts = cleaned
+    .split(" ")
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .filter((p) => !stopwords.has(p.toLowerCase()));
+
+  if (parts.length === 0) return { firstName: "", lastName: "" };
+  if (parts.length === 1) return { firstName: parts[0], lastName: "" };
+
+  return {
+    firstName: parts.slice(0, 1).join(" "),
+    lastName: parts.slice(1).join(" "),
+  };
+};
+
+const guessNameFromText = (
+  text: string,
+  fileName: string,
+): { firstName: string; lastName: string } => {
+  const lines = text
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  const candidateLine =
+    lines.find(
+      (l) =>
+        l.length >= 5 &&
+        l.length <= 80 &&
+        !/@/.test(l) &&
+        !/\d{4,}/.test(l) &&
+        /^[\p{L}\s.'-]+$/u.test(l),
+    ) ?? "";
+
+  if (candidateLine) return splitName(candidateLine);
+
+  const baseName = fileName.replace(/\.pdf$/i, "").trim();
+  const normalized = baseName
+    .replace(/[_\-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return splitName(normalized);
+};
+
 export default function CandidatoCreatePage() {
+  const { catalogs, isLoading: catalogsLoading, error: catalogsError } =
+    useCatalogs();
   const {
     form,
     error,
@@ -17,8 +199,9 @@ export default function CandidatoCreatePage() {
     handleCancel,
     setFormData,
     setErrorMessage,
-  } = useCandidate();
+  } = useCandidate({ catalogs });
   const [isParsingCv, setIsParsingCv] = useState(false);
+  const [uploadedCvName, setUploadedCvName] = useState("");
 
   const handleCvUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -30,48 +213,51 @@ export default function CandidatoCreatePage() {
     }
 
     setErrorMessage("");
+    setUploadedCvName(file.name);
     setIsParsingCv(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 900));
+      const fileBuffer = await file.arrayBuffer();
+      const loadingTask = getDocument({ data: fileBuffer });
+      const pdf = await loadingTask.promise;
 
-      const isPabloCv = file.name.includes(
-        "Pablo_Alexis_Cristóbal_Gallegos_Celis_CV",
-      );
+      let fullText = "";
+      const maxPages = Math.min(pdf.numPages, 5);
 
-      if (isPabloCv) {
-        setFormData({
-          firstName: "Pablo Alexis",
-          lastName: "Cristóbal Gallegos Celis",
-          email: "pgallegoscelis86@gmail.com",
-          phone: "9 8942 1155",
-          notes: "+56",
-
-          // Debe quedar vacío (pedido del usuario)
-          experience: "",
-          education: "Senior Software Engineer",
-
-          // Sección perfil/estudios
-          skills: "8+",
-          status: "universitario",
-
-          // Sección idiomas (nuevo mapeo dedicado)
-          language: "ingles",
-          languageLevel: "b1",
-
-          // Habilidades técnicas sí se autocompletan
-          technicalSkills:
-            "Java, Spring Boot, Microservicios, APIs REST, Kafka, PostgreSQL, Oracle, SQL Server, MongoDB, Docker, Kubernetes, AWS, Azure, GCP",
-        });
-      } else {
-        setFormData({
-          firstName: "Nombre extraído",
-          lastName: "Apellido extraído",
-          email: "correo@extraido.com",
-          phone: "",
-          notes: "+56",
-        });
+      for (let pageNum = 1; pageNum <= maxPages; pageNum += 1) {
+        const page = await pdf.getPage(pageNum);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items
+          .map((item) => ("str" in item ? item.str : ""))
+          .join(" ");
+        fullText += `\n${pageText}`;
       }
+
+      const { firstName, lastName } = guessNameFromText(fullText, file.name);
+      const email = extractEmail(fullText);
+      const phone = extractPhone(fullText);
+      const phoneCode = extractCountryPhone(phone, fullText);
+      const latestPosition = extractProfessionalProfile(fullText);
+      const yearsLabel = extractExperienceYears(fullText);
+      const educationLevel = extractEducationLevel(fullText);
+      const language = extractLanguage(fullText);
+      const languageLevel = extractLanguageLevel(fullText);
+      const technicalSkills = extractTechnicalSkills(fullText);
+
+      setFormData({
+        firstName,
+        lastName,
+        email,
+        phone,
+        notes: phoneCode,
+        experience: "",
+        education: latestPosition,
+        skills: yearsLabel,
+        status: educationLevel,
+        language,
+        languageLevel,
+        technicalSkills,
+      });
     } catch {
       setErrorMessage("No se pudo procesar el CV. Intenta nuevamente.");
     } finally {
@@ -86,6 +272,13 @@ export default function CandidatoCreatePage() {
         <h2>Nuevo Candidato</h2>
         <p>Registra la ficha del candidato.</p>
       </div>
+
+      {catalogsLoading && (
+        <div className="candidato-hint">Cargando catalogos…</div>
+      )}
+      {catalogsError && (
+        <div className="candidato-error">{catalogsError}</div>
+      )}
 
       <form onSubmit={handleSubmit} className="candidato-form">
         {error && <div className="candidato-error">{error}</div>}
@@ -150,17 +343,21 @@ export default function CandidatoCreatePage() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="notes">Código</label>
+              <label htmlFor="notes">Código de país</label>
               <select
                 id="notes"
                 name="notes"
                 className="form-input"
                 value={form.notes}
                 onChange={handleChange}
+                disabled={catalogsLoading}
               >
                 <option value="">Seleccione</option>
-                <option value="+56">+56</option>
-                <option value="+53">+53</option>
+                {catalogs.countryCodes.map((c) => (
+                  <option key={c.id} value={c.phoneCode}>
+                    {c.phoneCode} ({c.isoCode})
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -204,12 +401,14 @@ export default function CandidatoCreatePage() {
                 className="form-input"
                 value={form.skills}
                 onChange={handleChange}
+                disabled={catalogsLoading}
               >
                 <option value="">Seleccione</option>
-                <option value="0-1">0 - 1</option>
-                <option value="2-4">2 - 4</option>
-                <option value="5-7">5 - 7</option>
-                <option value="8+">8+</option>
+                {catalogs.experienceRanges.map((r) => (
+                  <option key={r.id} value={r.label}>
+                    {r.label}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -227,12 +426,14 @@ export default function CandidatoCreatePage() {
                 className="form-input"
                 value={form.status}
                 onChange={handleChange}
+                disabled={catalogsLoading}
               >
                 <option value="">Seleccione</option>
-                <option value="secundaria">Secundaria</option>
-                <option value="tecnico">Técnico</option>
-                <option value="universitario">Universitario</option>
-                <option value="postgrado">Postgrado</option>
+                {catalogs.educationLevels.map((e) => (
+                  <option key={e.id} value={e.name}>
+                    {e.name}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -281,11 +482,14 @@ export default function CandidatoCreatePage() {
                 className="form-input"
                 value={form.language ?? ""}
                 onChange={handleChange}
+                disabled={catalogsLoading}
               >
                 <option value="">Seleccione</option>
-                <option value="ingles">Inglés</option>
-                <option value="frances">Francés</option>
-                <option value="espanol">Español</option>
+                {catalogs.languages.map((l) => (
+                  <option key={l.id} value={l.name}>
+                    {l.name}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -297,14 +501,14 @@ export default function CandidatoCreatePage() {
                 className="form-input"
                 value={form.languageLevel ?? ""}
                 onChange={handleChange}
+                disabled={catalogsLoading}
               >
                 <option value="">Seleccione</option>
-                <option value="a1">A1 (Básico)</option>
-                <option value="a2">A2 (Básico)</option>
-                <option value="b1">B1 (Intermedio)</option>
-                <option value="b2">B2 (Intermedio)</option>
-                <option value="c1">C1 (Avanzado)</option>
-                <option value="c2">C2 (Avanzado)</option>
+                {catalogs.languageLevels.map((l) => (
+                  <option key={l.id} value={l.code}>
+                    {l.code} ({l.name})
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -329,6 +533,11 @@ export default function CandidatoCreatePage() {
                   Extrayendo información del CV…
                 </small>
               )}
+              {!!uploadedCvName && !isParsingCv && (
+                <small className="candidato-hint">
+                  Archivo cargado: {uploadedCvName}
+                </small>
+              )}
             </div>
           </div>
         </div>
@@ -343,7 +552,11 @@ export default function CandidatoCreatePage() {
             Cancelar
           </button>
 
-          <button type="submit" className="btn-primary" disabled={loading}>
+          <button
+            type="submit"
+            className="btn-primary"
+            disabled={loading || catalogsLoading}
+          >
             {loading ? "Creando…" : "Crear candidato"}
           </button>
         </div>

@@ -1,0 +1,182 @@
+/* ============================================================
+   WorkSync ATS — SolicitudListPage.css
+   ============================================================ */
+
+.solicitud-list-page {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.solicitud-list-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.solicitud-list-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.3px;
+}
+
+.solicitud-list-subtitle {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.solicitud-btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px -2px rgba(37, 99, 235, 0.4);
+  transition: all 0.2s ease;
+}
+
+.solicitud-btn-primary:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.solicitud-list-empty {
+  margin-top: 48px;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.solicitud-list-hint {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #cbd5e1;
+}
+
+.solicitud-table-wrapper {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.solicitud-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.solicitud-table th {
+  text-align: left;
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 12px 14px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.solicitud-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #0f172a;
+  vertical-align: middle;
+}
+
+.solicitud-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.solicitud-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.solicitud-cell-title {
+  font-weight: 600;
+}
+
+.solicitud-cell-num {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.solicitud-cell-skills {
+  color: #475569;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.solicitud-cell-date {
+  color: #64748b;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.solicitud-cell-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.solicitud-link-action {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2563eb;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.solicitud-link-action:hover {
+  text-decoration: underline;
+}
+
+.solicitud-link-danger {
+  color: #b91c1c;
+}
+
+/* Status badges */
+.solicitud-status {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.solicitud-status--ABIERTA {
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+}
+
+.solicitud-status--EN_PROCESO {
+  background: rgba(245, 158, 11, 0.12);
+  color: #b45309;
+}
+
+.solicitud-status--CERRADA {
+  background: rgba(100, 116, 139, 0.12);
+  color: #475569;
+}
+
+.solicitud-status--CANCELADA {
+  background: rgba(239, 68, 68, 0.12);
+  color: #b91c1c;
+}

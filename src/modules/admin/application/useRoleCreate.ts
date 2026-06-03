@@ -6,7 +6,7 @@
 import { useState, useCallback, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import type { RoleFormData } from "../../../shared/types/forms";
-import { API_BASE_URL } from "../../../shared/constants/forms";
+import { API_USERS_URL } from "../../../shared/constants/forms";
 
 interface UseRoleCreateReturn {
   form: RoleFormData;
@@ -58,7 +58,7 @@ export function useRoleCreate(): UseRoleCreateReturn {
       setLoading(true);
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch(`${API_BASE_URL}/roles`, {
+        const res = await fetch(`${API_USERS_URL}/roles`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
