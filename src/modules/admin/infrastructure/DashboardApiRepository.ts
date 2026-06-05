@@ -7,6 +7,7 @@ import { httpRequest, HttpError } from "../../../shared/services/httpClient";
 import { API_USERS_URL } from "../../../shared/constants/forms";
 import type { User } from "../domain/models/User";
 import type { DashboardSnapshot } from "../domain/models/Dashboard";
+import type { PageResponse } from "../../../shared/types/api";
 
 interface PermissionLite {
   active?: boolean;
@@ -40,12 +41,18 @@ function safeCount<T>(items: T[] | undefined): { total: number; active: number }
 
 export class DashboardApiRepository {
   async fetchSnapshot(): Promise<DashboardSnapshot> {
+    const usersPromise = httpRequest<PageResponse<User>>("/api/users", { baseUrl: API_USERS_URL }).then(r => r.content);
+    const rolesPromise = httpRequest<PageResponse<RoleLite>>("/api/roles", { baseUrl: API_USERS_URL }).then(r => r.content);
+    const permsPromise = httpRequest<PermissionLite[]>("/api/permissions", { baseUrl: API_USERS_URL });
+    const modulesPromise = httpRequest<ModuleLite[]>("/api/modules", { baseUrl: API_USERS_URL });
+    const menusPromise = httpRequest<MenuLite[]>("/api/menus", { baseUrl: API_USERS_URL });
+
     const results = await Promise.allSettled([
-      httpRequest<User[]>("/api/users", { baseUrl: API_USERS_URL }),
-      httpRequest<RoleLite[]>("/api/roles", { baseUrl: API_USERS_URL }),
-      httpRequest<PermissionLite[]>("/api/permissions", { baseUrl: API_USERS_URL }),
-      httpRequest<ModuleLite[]>("/api/modules", { baseUrl: API_USERS_URL }),
-      httpRequest<MenuLite[]>("/api/menus", { baseUrl: API_USERS_URL }),
+      usersPromise,
+      rolesPromise,
+      permsPromise,
+      modulesPromise,
+      menusPromise,
     ]);
 
     const [usersRes, rolesRes, permsRes, modulesRes, menusRes] = results;

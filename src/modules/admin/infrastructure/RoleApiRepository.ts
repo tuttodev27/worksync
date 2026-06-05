@@ -6,6 +6,7 @@ import type {
   CreateRolePayload,
   UpdateRolePayload,
 } from "../domain/models/Role";
+import type { PageResponse } from "../../../shared/types/api";
 
 function buildQuery(active?: boolean): string {
   if (active === undefined) return "";
@@ -32,9 +33,10 @@ export class RoleApiRepository implements RoleRepository {
 
   async list(active?: boolean): Promise<Role[]> {
     try {
-      return await httpRequest<Role[]>(`/api/roles${buildQuery(active)}`, {
+      const response = await httpRequest<PageResponse<Role>>(`/api/roles${buildQuery(active)}`, {
         baseUrl: this.baseUrl,
       });
+      return response.content;
     } catch (err) {
       throw mapError(err);
     }

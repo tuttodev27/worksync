@@ -5,10 +5,10 @@
 
 import { httpRequest, HttpError } from "../../../shared/services/httpClient";
 import { API_CANDIDATE_URL } from "../../../shared/constants/forms";
+import type { PageResponse } from "../../../shared/types/api";
 import type {
   CreateCandidatePayload,
   CandidateApiResponse,
-  PageResponse,
   UpdateCandidatePayload,
   AttachmentResponse,
 } from "../domain/types";

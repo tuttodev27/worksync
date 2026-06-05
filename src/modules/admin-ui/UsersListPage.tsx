@@ -104,22 +104,24 @@ export default function UsersListPage() {
                 <tr key={user.id}>
                   <td className="users-cell-id">{user.id}</td>
                   <td className="users-cell-name">
-                    {user.name} {user.lastName}
+                    {user.name ?? ""} {user.lastName ?? ""}
                   </td>
-                  <td className="users-cell-email">{user.email}</td>
+                  <td className="users-cell-email">{user.email ?? ""}</td>
                   <td className="users-cell-phone">
-                    {user.countryCode} {user.phone}
+                    {user.countryCode ?? ""} {user.phone ?? ""}
                   </td>
                   <td>
                     <div className="users-roles">
-                      {user.roles.length === 0 ? (
+                      {Array.isArray(user.roles) && user.roles.length === 0 ? (
                         <span className="users-roles-empty">—</span>
-                      ) : (
+                      ) : Array.isArray(user.roles) ? (
                         user.roles.map((role) => (
                           <span key={role} className="users-role-chip">
                             {role}
                           </span>
                         ))
+                      ) : (
+                        <span className="users-roles-empty">—</span>
                       )}
                     </div>
                   </td>

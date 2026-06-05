@@ -6,7 +6,6 @@ import type {
   CreateMenuPayload,
   UpdateMenuPayload,
 } from "../domain/models/Menu";
-
 function buildQuery(active?: boolean): string {
   if (active === undefined) return "";
   return `?active=${active}`;

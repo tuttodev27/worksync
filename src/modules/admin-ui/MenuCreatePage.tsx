@@ -83,7 +83,7 @@ export default function MenuCreatePage() {
               Cancelar
             </button>
 
-            <button type="submit" className="af-btn-primary">
+            <button type="submit" className="af-btn-primary" disabled={loading}>
               Crear menú
             </button>
           </div>

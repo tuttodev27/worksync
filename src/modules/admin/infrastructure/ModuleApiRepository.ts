@@ -6,7 +6,6 @@ import type {
   CreateModulePayload,
   UpdateModulePayload,
 } from "../domain/models/Module";
-
 function buildQuery(active?: boolean): string {
   if (active === undefined) return "";
   return `?active=${active}`;

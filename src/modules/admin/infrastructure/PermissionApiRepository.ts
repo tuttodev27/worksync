@@ -6,7 +6,6 @@ import type {
   CreatePermissionPayload,
   UpdatePermissionPayload,
 } from "../domain/models/Permission";
-
 function buildQuery(active?: boolean): string {
   if (active === undefined) return "";
   return `?active=${active}`;

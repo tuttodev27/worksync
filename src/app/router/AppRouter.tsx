@@ -6,6 +6,7 @@ import ForgotPasswordPage from "../../modules/auth/ui/pages/ForgotPasswordPage";
 import AdminLayout from "../../modules/admin-ui/AdminLayout";
 import AdminDashboard from "../../modules/admin-ui/AdminDashboard";
 
+import ErrorBoundary from "../../shared/components/ErrorBoundary";
 import UsersListPage from "../../modules/admin-ui/UsersListPage";
 import RegisterPage from "../../modules/admin-ui/RegisterPage";
 import RolesPage from "../../modules/admin-ui/RolesPage";
@@ -50,22 +51,22 @@ export default function AppRouter() {
             </RequireAuth>
           }
         >
-          <Route index element={<AdminDashboard />} />
+          <Route index element={<ErrorBoundary><AdminDashboard /></ErrorBoundary>} />
 
-          <Route path="users" element={<UsersListPage />} />
-          <Route path="users/create" element={<RegisterPage />} />
+          <Route path="users" element={<ErrorBoundary><UsersListPage /></ErrorBoundary>} />
+          <Route path="users/create" element={<ErrorBoundary><RegisterPage /></ErrorBoundary>} />
 
-          <Route path="roles" element={<RolesPage />} />
-          <Route path="roles/new" element={<RoleCreatePage />} />
+          <Route path="roles" element={<ErrorBoundary><RolesPage /></ErrorBoundary>} />
+          <Route path="roles/new" element={<ErrorBoundary><RoleCreatePage /></ErrorBoundary>} />
 
-          <Route path="modules" element={<ModuloPage />} />
-          <Route path="modules/new" element={<ModuloCreatePage />} />
+          <Route path="modules" element={<ErrorBoundary><ModuloPage /></ErrorBoundary>} />
+          <Route path="modules/new" element={<ErrorBoundary><ModuloCreatePage /></ErrorBoundary>} />
 
-          <Route path="menu" element={<MenusPage />} />
-          <Route path="menu/new" element={<MenuCreatePage />} />
+          <Route path="menu" element={<ErrorBoundary><MenusPage /></ErrorBoundary>} />
+          <Route path="menu/new" element={<ErrorBoundary><MenuCreatePage /></ErrorBoundary>} />
 
-          <Route path="permissions" element={<PermissionListPage />} />
-          <Route path="permissions/create" element={<PermissionCreatePage />} />
+          <Route path="permissions" element={<ErrorBoundary><PermissionListPage /></ErrorBoundary>} />
+          <Route path="permissions/create" element={<ErrorBoundary><PermissionCreatePage /></ErrorBoundary>} />
         </Route>
 
         {/* 🔥 RECRUITER */}
@@ -77,10 +78,10 @@ export default function AppRouter() {
             </RequireAuth>
           }
         >
-          <Route index element={<RecluiterDashboard />} />
-          <Route path="candidates" element={<CandidateListPage />} />
-          <Route path="candidates/new" element={<CandidatoCreatePage />} />
-          <Route path="candidates/:id" element={<CandidateDetailPage />} />
+          <Route index element={<ErrorBoundary><RecluiterDashboard /></ErrorBoundary>} />
+          <Route path="candidates" element={<ErrorBoundary><CandidateListPage /></ErrorBoundary>} />
+          <Route path="candidates/new" element={<ErrorBoundary><CandidatoCreatePage /></ErrorBoundary>} />
+          <Route path="candidates/:id" element={<ErrorBoundary><CandidateDetailPage /></ErrorBoundary>} />
         </Route>
 
         {/* 🔥 FALLBACK */}

@@ -11,6 +11,7 @@ import type {
   CreateUserPayload,
   UpdateUserPayload,
 } from "../domain/models/User";
+import type { PageResponse } from "../../../shared/types/api";
 
 function buildQuery(active?: boolean): string {
   if (active === undefined) return "";
@@ -37,9 +38,10 @@ export class UserApiRepository implements UserRepository {
 
   async list(active?: boolean): Promise<User[]> {
     try {
-      return await httpRequest<User[]>(`/api/users${buildQuery(active)}`, {
+      const response = await httpRequest<PageResponse<User>>(`/api/users${buildQuery(active)}`, {
         baseUrl: this.baseUrl,
       });
+      return response.content;
     } catch (err) {
       throw mapError(err);
     }
@@ -92,9 +94,10 @@ export class UserApiRepository implements UserRepository {
 
   async listAvailableRoles(): Promise<string[]> {
     try {
-      return await httpRequest<string[]>("/api/users/roles", {
+      const response = await httpRequest<string[] | PageResponse<string>>("/api/users/roles", {
         baseUrl: this.baseUrl,
       });
+      return Array.isArray(response) ? response : response.content;
     } catch (err) {
       throw mapError(err);
     }
