@@ -9,6 +9,7 @@ import AdminDashboard from "../../modules/admin-ui/AdminDashboard";
 import ErrorBoundary from "../../shared/components/ErrorBoundary";
 import UsersListPage from "../../modules/admin-ui/UsersListPage";
 import RegisterPage from "../../modules/admin-ui/RegisterPage";
+import EditUserPage from "../../modules/admin-ui/EditUserPage";
 import RolesPage from "../../modules/admin-ui/RolesPage";
 import PermissionListPage from "../../modules/admin-ui/PermissionListPage";
 import ModuloPage from "../../modules/admin-ui/ModuloPage";
@@ -55,6 +56,7 @@ export default function AppRouter() {
 
           <Route path="users" element={<ErrorBoundary><UsersListPage /></ErrorBoundary>} />
           <Route path="users/create" element={<ErrorBoundary><RegisterPage /></ErrorBoundary>} />
+          <Route path="users/:id/edit" element={<ErrorBoundary><EditUserPage /></ErrorBoundary>} />
 
           <Route path="roles" element={<ErrorBoundary><RolesPage /></ErrorBoundary>} />
           <Route path="roles/new" element={<ErrorBoundary><RoleCreatePage /></ErrorBoundary>} />

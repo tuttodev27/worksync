@@ -1,11 +1,8 @@
-/**
- * UsersListPage - Listado de usuarios desde el backend
- */
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useUserList } from "../../modules/admin/application/useUserList";
 import { useUserDelete } from "../../modules/admin/application/useUserDelete";
+import ConfirmModal from "../shared/ui/components/ConfirmModal";
 import "./AdminPages.css";
 import "./UsersListPage.css";
 
@@ -20,6 +17,12 @@ export default function UsersListPage() {
     useUserList();
   const { deleteUser } = useUserDelete();
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [confirmId, setConfirmId] = useState<number | null>(null);
+
+  const confirmUser = users.find((u) => u.id === confirmId);
+  const confirmName = confirmUser
+    ? `${confirmUser.name ?? ""} ${confirmUser.lastName ?? ""}`.trim()
+    : "";
 
   const handleFilterChange = (value: "" | "true" | "false") => {
     if (value === "") {
@@ -29,11 +32,12 @@ export default function UsersListPage() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm("¿Eliminar este usuario?")) return;
-    setDeletingId(id);
+  const handleDelete = async () => {
+    if (confirmId === null) return;
+    setDeletingId(confirmId);
+    setConfirmId(null);
     try {
-      await deleteUser(id);
+      await deleteUser(confirmId);
       await refresh();
     } finally {
       setDeletingId(null);
@@ -104,7 +108,12 @@ export default function UsersListPage() {
                 <tr key={user.id}>
                   <td className="users-cell-id">{user.id}</td>
                   <td className="users-cell-name">
-                    {user.name ?? ""} {user.lastName ?? ""}
+                    <Link
+                      to={`/admin/users/${user.id}/edit`}
+                      className="users-cell-link"
+                    >
+                      {user.name ?? ""} {user.lastName ?? ""}
+                    </Link>
                   </td>
                   <td className="users-cell-email">{user.email ?? ""}</td>
                   <td className="users-cell-phone">
@@ -140,11 +149,11 @@ export default function UsersListPage() {
                   <td className="users-row-actions">
                     <button
                       type="button"
-                      className="users-delete-btn"
-                      onClick={() => handleDelete(user.id)}
+                      className="users-deactivate-btn"
+                      onClick={() => setConfirmId(user.id)}
                       disabled={deletingId === user.id}
                     >
-                      {deletingId === user.id ? "Eliminando…" : "Eliminar"}
+                      {deletingId === user.id ? "Desactivando…" : "Desactivar"}
                     </button>
                   </td>
                 </tr>
@@ -153,6 +162,22 @@ export default function UsersListPage() {
           </tbody>
         </table>
       </div>
+
+      <ConfirmModal
+        open={confirmId !== null}
+        title="Desactivar usuario"
+        message={
+          confirmName
+            ? `¿Estás seguro de desactivar a "${confirmName}"? El usuario quedará inactivo y no podrá acceder al sistema.`
+            : "¿Estás seguro de desactivar este usuario?"
+        }
+        confirmLabel="Desactivar"
+        cancelLabel="Cancelar"
+        variant="danger"
+        loading={deletingId === confirmId}
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmId(null)}
+      />
     </div>
   );
 }

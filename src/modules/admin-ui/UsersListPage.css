@@ -184,13 +184,26 @@
   font-size: 14px;
 }
 
+/* ── Nombre como link de edición ── */
+.users-cell-link {
+  color: #18181b;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.15s ease;
+}
+
+.users-cell-link:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
 /* ── Acciones de fila ── */
 .users-row-actions {
   text-align: right;
   white-space: nowrap;
 }
 
-.users-delete-btn {
+.users-deactivate-btn {
   height: 32px;
   padding: 0 12px;
   background: transparent;
@@ -204,16 +217,16 @@
   transition: all 0.15s ease;
 }
 
-.users-delete-btn:hover:not(:disabled) {
+.users-deactivate-btn:hover:not(:disabled) {
   background: rgba(220, 38, 38, 0.06);
   border-color: rgba(220, 38, 38, 0.45);
 }
 
-.users-delete-btn:active:not(:disabled) {
+.users-deactivate-btn:active:not(:disabled) {
   transform: scale(0.97);
 }
 
-.users-delete-btn:disabled {
+.users-deactivate-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
