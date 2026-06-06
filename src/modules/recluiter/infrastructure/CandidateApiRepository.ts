@@ -11,6 +11,8 @@ import type {
   CandidateApiResponse,
   UpdateCandidatePayload,
   AttachmentResponse,
+  StatusChangeRequest,
+  StatusHistoryResponse,
 } from "../domain/types";
 
 export class CandidateApiError extends Error {
@@ -142,6 +144,47 @@ export class CandidateApiRepository {
     try {
       return await httpRequest<AttachmentResponse[]>(
         `/api/candidates/${candidateId}/attachments`,
+        { method: "GET", baseUrl: this.baseUrl },
+      );
+    } catch (err) {
+      toApiError(err);
+    }
+  }
+
+  async parseAttachment(
+    candidateId: number,
+    attachmentId: number,
+  ): Promise<CandidateApiResponse> {
+    try {
+      return await httpRequest<CandidateApiResponse>(
+        `/api/candidates/${candidateId}/attachments/${attachmentId}/parse`,
+        { method: "POST", baseUrl: this.baseUrl },
+      );
+    } catch (err) {
+      toApiError(err);
+    }
+  }
+
+  async updateStatus(
+    id: number,
+    payload: StatusChangeRequest,
+  ): Promise<CandidateApiResponse> {
+    try {
+      return await httpRequest<CandidateApiResponse>(
+        `/api/candidates/${id}/status`,
+        { method: "PATCH", body: payload, baseUrl: this.baseUrl },
+      );
+    } catch (err) {
+      toApiError(err);
+    }
+  }
+
+  async listStatusHistory(
+    candidateId: number,
+  ): Promise<StatusHistoryResponse[]> {
+    try {
+      return await httpRequest<StatusHistoryResponse[]>(
+        `/api/candidates/${candidateId}/status-history`,
         { method: "GET", baseUrl: this.baseUrl },
       );
     } catch (err) {

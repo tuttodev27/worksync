@@ -1,10 +1,15 @@
 import { useEffect, useState, type ChangeEvent } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   candidateRepository,
   CandidateApiError,
 } from "../recluiter/infrastructure/CandidateApiRepository";
-import type { CandidateApiResponse, AttachmentResponse } from "../recluiter/domain/types";
+import type {
+  CandidateApiResponse,
+  AttachmentResponse,
+  StatusHistoryResponse,
+} from "../recluiter/domain/types";
+import ConfirmModal from "../shared/ui/components/ConfirmModal";
 import "./CandidateDetailPage.css";
 
 function formatDate(iso?: string): string {
@@ -19,6 +24,12 @@ function formatDate(iso?: string): string {
   } catch {
     return iso;
   }
+}
+
+function stateClass(state?: string): string {
+  const base = "candidate-status";
+  if (!state) return base;
+  return `${base} ${base}--${state.toLowerCase()}`;
 }
 
 function stateLabel(state?: string): string {
@@ -45,6 +56,11 @@ export default function CandidateDetailPage() {
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [statusHistory, setStatusHistory] = useState<StatusHistoryResponse[]>([]);
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
+  const [statusUpdating, setStatusUpdating] = useState(false);
+  const [statusError, setStatusError] = useState("");
+  const [showStatusConfirm, setShowStatusConfirm] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -59,10 +75,13 @@ export default function CandidateDetailPage() {
     Promise.all([
       candidateRepository.getById(numericId),
       candidateRepository.listAttachments(numericId),
+      candidateRepository.listStatusHistory(numericId).catch(() => []),
     ])
-      .then(([cand, atts]) => {
+      .then(([cand, atts, history]) => {
         setCandidate(cand);
         setAttachments(atts);
+        setStatusHistory(history);
+        setSelectedStatus(cand.currentState ?? "");
       })
       .catch((err) => {
         if (err instanceof CandidateApiError) {
@@ -111,6 +130,34 @@ export default function CandidateDetailPage() {
     }
   };
 
+  const handleStatusChange = async () => {
+    if (!id || !selectedStatus || selectedStatus === candidate?.currentState) return;
+    setStatusUpdating(true);
+    setStatusError("");
+    setShowStatusConfirm(false);
+    try {
+      const updated = await candidateRepository.updateStatus(Number(id), { status: selectedStatus });
+      setCandidate(updated);
+      const history = await candidateRepository.listStatusHistory(Number(id)).catch(() => []);
+      setStatusHistory(history);
+    } catch (err) {
+      setStatusError(err instanceof CandidateApiError ? err.message : "No se pudo cambiar el estado.");
+    } finally {
+      setStatusUpdating(false);
+    }
+  };
+
+  const validTransitions: Record<string, string[]> = {
+    NEW: ["IN_REVIEW"],
+    IN_REVIEW: ["INTERVIEW", "REJECTED"],
+    INTERVIEW: ["SHORTLIST", "REJECTED"],
+    SHORTLIST: ["HIRED", "REJECTED"],
+    REJECTED: [],
+    HIRED: [],
+  };
+
+  const availableTransitions = validTransitions[candidate?.currentState ?? ""] ?? [];
+
   if (loading) {
     return <div className="candidate-detail-page"><div className="candidate-detail-loading">Cargando ficha del candidato...</div></div>;
   }
@@ -142,9 +189,14 @@ export default function CandidateDetailPage() {
             )}
           </p>
         </div>
-        <button className="candidate-btn-secondary" onClick={() => navigate("/recluiter/candidates")}>
-          Volver
-        </button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <Link to={`/recluiter/candidates/${candidate.id}/edit`} className="candidate-btn-secondary" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center" }}>
+            Editar
+          </Link>
+          <button className="candidate-btn-secondary" onClick={() => navigate("/recluiter/candidates")}>
+            Volver
+          </button>
+        </div>
       </div>
 
       <div className="candidate-detail-grid">
@@ -283,6 +335,73 @@ export default function CandidateDetailPage() {
       </div>
 
       <div className="candidate-detail-card">
+        <h3>Estado del candidato</h3>
+        {statusError && <p className="candidate-upload-error">{statusError}</p>}
+        {candidate.currentState && (
+          <p style={{ margin: "0 0 12px", fontSize: 14, color: "#475569" }}>
+            Estado actual:{" "}
+            <span className={stateClass(candidate.currentState)}>
+              {stateLabel(candidate.currentState)}
+            </span>
+          </p>
+        )}
+        {availableTransitions.length > 0 ? (
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <select
+              className="candidate-search-input"
+              style={{ maxWidth: 200, minHeight: 38 }}
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              disabled={statusUpdating}
+            >
+              <option value="">Seleccionar estado</option>
+              {availableTransitions.map((st) => (
+                <option key={st} value={st}>
+                  {stateLabel(st)}
+                </option>
+              ))}
+            </select>
+            <button
+              className="candidate-btn-primary"
+              style={{ padding: "8px 14px", fontSize: 13 }}
+              disabled={!selectedStatus || selectedStatus === candidate.currentState || statusUpdating}
+              onClick={() => setShowStatusConfirm(true)}
+            >
+              {statusUpdating ? "Actualizando…" : "Cambiar estado"}
+            </button>
+          </div>
+        ) : candidate.currentState === "REJECTED" || candidate.currentState === "HIRED" ? (
+          <p className="candidate-detail-empty">Estado final. No se pueden realizar más transiciones.</p>
+        ) : (
+          <p className="candidate-detail-empty">Sin estado asignado.</p>
+        )}
+
+        {statusHistory.length > 0 && (
+          <div style={{ marginTop: 16 }}>
+            <h4 style={{ margin: "0 0 8px", fontSize: 13, color: "#64748b" }}>Historial de cambios</h4>
+            <table className="candidate-table" style={{ fontSize: 13 }}>
+              <thead>
+                <tr>
+                  <th>Estado anterior</th>
+                  <th>Nuevo estado</th>
+                  <th>Fecha</th>
+                </tr>
+              </thead>
+              <tbody>
+                {statusHistory.map((h) => (
+                  <tr key={h.id}>
+                    <td>{h.previousState ? stateLabel(h.previousState) : "-"}</td>
+                    <td><span className={stateClass(h.newState)}>{stateLabel(h.newState)}</span></td>
+                    <td className="candidate-cell-date">{h.changedAt ? formatDate(h.changedAt) : "-"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <div className="candidate-detail-card">
         <h3>Documentos adjuntos</h3>
         {attachments.length > 0 ? (
           <ul className="detail-simple-list">
@@ -312,6 +431,17 @@ export default function CandidateDetailPage() {
           {uploadError && <p className="candidate-upload-error">{uploadError}</p>}
         </div>
       </div>
+
+      <ConfirmModal
+        open={showStatusConfirm}
+        title="Cambiar estado"
+        message={`¿Estás seguro de cambiar el estado a "${selectedStatus ? stateLabel(selectedStatus) : ""}"?`}
+        confirmLabel="Confirmar"
+        cancelLabel="Cancelar"
+        loading={statusUpdating}
+        onConfirm={handleStatusChange}
+        onCancel={() => setShowStatusConfirm(false)}
+      />
     </div>
   );
 }
