@@ -172,6 +172,18 @@ export interface CandidateNoteResponse {
   createdBy?: string;
 }
 
+export interface StatusChangeRequest {
+  status: string;
+}
+
+export interface StatusHistoryResponse {
+  id: number;
+  previousState?: string;
+  newState: string;
+  changedBy?: number;
+  changedAt?: string;
+}
+
 
 export interface CandidateApiResponse {
   id: number;

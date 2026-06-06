@@ -1,0 +1,284 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  candidateRepository,
+  CandidateApiError,
+} from "../infrastructure/CandidateApiRepository";
+import { useCatalogs } from "./useCatalogs";
+import type {
+  RecruiterCatalogs,
+  UpdateCandidatePayload,
+  CreateCandidateProfessionalProfile,
+  CreateCandidateLanguage,
+  CreateCandidateEducation,
+  CreateCandidateHardSkill,
+  CreateCandidateSoftSkill,
+} from "../domain/types";
+
+export interface CandidateEditFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  identityDocument: string;
+  countryCode: string;
+  location: string;
+  linkedinUrl: string;
+  githubUrl: string;
+  latestPosition: string;
+  yearsExperience: string;
+  headline: string;
+  summary: string;
+  educationLevel: string;
+  degree: string;
+  institution: string;
+  language: string;
+  languageLevel: string;
+  technicalSkills: string;
+  softSkills: string;
+}
+
+interface UseCandidateEditReturn {
+  form: CandidateEditFormData;
+  error: string;
+  loading: boolean;
+  saving: boolean;
+  notFound: boolean;
+  catalogs: RecruiterCatalogs;
+  catalogsLoading: boolean;
+  handleChange: (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
+  handleSubmit: (e: FormEvent) => Promise<void>;
+  handleCancel: () => void;
+}
+
+function normalize(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function findExperienceRange(catalogs: RecruiterCatalogs | undefined, value: string) {
+  if (!catalogs || !value) return undefined;
+  const target = normalize(value);
+  return catalogs.experienceRanges.find((r) => normalize(r.label) === target);
+}
+
+function findEducationLevel(catalogs: RecruiterCatalogs | undefined, value: string) {
+  if (!catalogs || !value) return undefined;
+  const target = normalize(value);
+  return catalogs.educationLevels.find((e) => normalize(e.name) === target);
+}
+
+function findLanguage(catalogs: RecruiterCatalogs | undefined, value: string) {
+  if (!catalogs || !value) return undefined;
+  const target = normalize(value);
+  return catalogs.languages.find((l) => normalize(l.name) === target) ??
+    catalogs.languages.find((l) => normalize(l.isoCode) === target);
+}
+
+function findLanguageLevel(catalogs: RecruiterCatalogs | undefined, value: string) {
+  if (!catalogs || !value) return undefined;
+  const target = normalize(value);
+  return catalogs.languageLevels.find((l) => normalize(l.code) === target) ??
+    catalogs.languageLevels.find((l) => normalize(l.name) === target);
+}
+
+function describeError(err: unknown): string {
+  if (err instanceof CandidateApiError) {
+    if (err.status === 400) return err.message || "Los datos enviados no son validos.";
+    if (err.status === 401) return "Tu sesion expiro. Inicia sesion nuevamente.";
+    if (err.status === 403) return "No tienes permiso para editar candidatos.";
+    if (err.status === 404) return "Candidato no encontrado.";
+    return err.message || "No se pudo actualizar el candidato.";
+  }
+  return err instanceof Error ? err.message : "No se pudo actualizar el candidato.";
+}
+
+export function useCandidateEdit(): UseCandidateEditReturn {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { catalogs, isLoading: catalogsLoading } = useCatalogs();
+
+  const [form, setForm] = useState<CandidateEditFormData>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    identityDocument: "",
+    countryCode: "",
+    location: "",
+    linkedinUrl: "",
+    githubUrl: "",
+    latestPosition: "",
+    yearsExperience: "",
+    headline: "",
+    summary: "",
+    educationLevel: "",
+    degree: "",
+    institution: "",
+    language: "",
+    languageLevel: "",
+    technicalSkills: "",
+    softSkills: "",
+  });
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
+  const [saving, setSaving] = useState<boolean>(false);
+  const [notFound, setNotFound] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!id) return;
+    let cancelled = false;
+
+    candidateRepository
+      .getById(Number(id))
+      .then((candidate) => {
+        if (cancelled) return;
+        setForm({
+          firstName: candidate.firstName ?? "",
+          lastName: candidate.lastName ?? "",
+          email: candidate.email ?? "",
+          phone: candidate.phone ?? "",
+          identityDocument: candidate.identityDocument ?? "",
+          countryCode: candidate.countryCode ?? "",
+          location: candidate.location ?? "",
+          linkedinUrl: candidate.linkedinUrl ?? "",
+          githubUrl: candidate.githubUrl ?? "",
+          latestPosition: candidate.professionalProfile?.latestPosition ?? "",
+          yearsExperience: candidate.professionalProfile?.yearsExperience != null
+            ? String(candidate.professionalProfile.yearsExperience)
+            : "",
+          headline: candidate.professionalProfile?.headline ?? "",
+          summary: candidate.professionalProfile?.summary ?? "",
+          educationLevel: candidate.educations?.[0]?.educationLevelId
+            ? String(candidate.educations[0].educationLevelId)
+            : "",
+          degree: candidate.educations?.[0]?.degree ?? "",
+          institution: candidate.educations?.[0]?.institution ?? "",
+          language: candidate.languages?.[0]?.languageId
+            ? String(candidate.languages[0].languageId)
+            : "",
+          languageLevel: candidate.languages?.[0]?.languageLevelId
+            ? String(candidate.languages[0].languageLevelId)
+            : "",
+          technicalSkills: candidate.hardSkills?.map((s) => `Skill #${s.hardSkillId}`).join(", ") ?? "",
+          softSkills: candidate.softSkills?.map((s) => `Skill #${s.softSkillId}`).join(", ") ?? "",
+        });
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        if (err instanceof CandidateApiError && err.status === 404) {
+          setNotFound(true);
+        } else {
+          setError(err instanceof Error ? err.message : "Error al cargar candidato");
+        }
+        setLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [id]);
+
+  const handleChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+      const { name, value } = e.target;
+      setForm((prev) => ({ ...prev, [name]: value }));
+    },
+    [],
+  );
+
+  const handleCancel = useCallback(() => {
+    if (id) {
+      navigate(`/recluiter/candidates/${id}`);
+    } else {
+      navigate("/recluiter/candidates");
+    }
+  }, [navigate, id]);
+
+  const handleSubmit = useCallback(
+    async (e: FormEvent) => {
+      e.preventDefault();
+      if (!id) return;
+
+      setError("");
+
+      if (!form.firstName.trim()) { setError("El nombre es obligatorio."); return; }
+      if (!form.lastName.trim()) { setError("El apellido es obligatorio."); return; }
+      if (!form.email.trim()) { setError("El email es obligatorio."); return; }
+
+      const professionalProfile: CreateCandidateProfessionalProfile = {};
+      if (form.latestPosition.trim()) professionalProfile.latestPosition = form.latestPosition.trim();
+      if (form.headline.trim()) professionalProfile.headline = form.headline.trim();
+      if (form.summary.trim()) professionalProfile.summary = form.summary.trim();
+
+      const experienceRange = findExperienceRange(catalogs, form.yearsExperience);
+      if (experienceRange) {
+        professionalProfile.experienceRangeId = experienceRange.id;
+        if (experienceRange.minYears != null) {
+          professionalProfile.yearsExperience = experienceRange.minYears;
+        }
+      }
+
+      const educations: CreateCandidateEducation[] = [];
+      if (form.educationLevel) {
+        educations.push({
+          educationLevelId: Number(form.educationLevel),
+          degree: form.degree.trim() || undefined,
+          institution: form.institution.trim() || undefined,
+        });
+      }
+
+      const languages: CreateCandidateLanguage[] = [];
+      const language = findLanguage(catalogs, form.language);
+      const languageLevel = findLanguageLevel(catalogs, form.languageLevel);
+      if (language) {
+        languages.push({
+          languageId: language.id,
+          languageLevelId: languageLevel?.id,
+        });
+      }
+
+      const payload: UpdateCandidatePayload = {
+        phone: form.phone.trim() || undefined,
+        countryCode: form.countryCode.trim() || undefined,
+        identityDocument: form.identityDocument.trim() || undefined,
+        location: form.location.trim() || undefined,
+        linkedinUrl: form.linkedinUrl.trim() || undefined,
+        githubUrl: form.githubUrl.trim() || undefined,
+      };
+
+      if (professionalProfile.latestPosition || professionalProfile.experienceRangeId || professionalProfile.headline || professionalProfile.summary) {
+        payload.professionalProfile = professionalProfile;
+      }
+      if (educations.length > 0) payload.educations = educations;
+      if (languages.length > 0) payload.languages = languages;
+
+      setSaving(true);
+      try {
+        await candidateRepository.update(Number(id), payload);
+        navigate(`/recluiter/candidates/${id}`);
+      } catch (err) {
+        setError(describeError(err));
+      } finally {
+        setSaving(false);
+      }
+    },
+    [id, form, catalogs, navigate],
+  );
+
+  return {
+    form,
+    error,
+    loading,
+    saving,
+    notFound,
+    catalogs,
+    catalogsLoading,
+    handleChange,
+    handleSubmit,
+    handleCancel,
+  };
+}

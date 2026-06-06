@@ -25,6 +25,7 @@ import RecluiterLayout from "../../modules/recluiter-ui/RecluiterLayout";
 import RecluiterDashboard from "../../modules/recluiter-ui/RecluiterDashboard";
 import CandidateListPage from "../../modules/recluiter-ui/CandidateListPage";
 import CandidateDetailPage from "../../modules/recluiter-ui/CandidateDetailPage";
+import CandidateEditPage from "../../modules/recluiter-ui/CandidateEditPage";
 import CandidatoCreatePage from "../../modules/recluiter-ui/CandidatoCreatePage";
 
 
@@ -84,6 +85,7 @@ export default function AppRouter() {
           <Route path="candidates" element={<ErrorBoundary><CandidateListPage /></ErrorBoundary>} />
           <Route path="candidates/new" element={<ErrorBoundary><CandidatoCreatePage /></ErrorBoundary>} />
           <Route path="candidates/:id" element={<ErrorBoundary><CandidateDetailPage /></ErrorBoundary>} />
+          <Route path="candidates/:id/edit" element={<ErrorBoundary><CandidateEditPage /></ErrorBoundary>} />
         </Route>
 
         {/* 🔥 FALLBACK */}
