@@ -1,0 +1,47 @@
+.edit-loading {
+  text-align: center;
+  padding: 48px 0;
+  color: #71717a;
+  font-size: 14px;
+}
+
+.form-group-checkbox {
+  margin-top: 8px;
+}
+
+.form-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #18181b;
+  padding: 10px 0;
+}
+
+.form-checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid #d4d4d8;
+  accent-color: #2563eb;
+  cursor: pointer;
+}
+
+.form-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #a1a1aa;
+}
+
+.form-hint-error {
+  color: #b91c1c;
+}
+
+input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #f4f4f5;
+}
