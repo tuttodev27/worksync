@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useCandidateApiList } from "../recruiter/application/useCandidateApiList";
+import { useCatalogs } from "../recruiter/application/useCatalogs";
 import { candidateRepository } from "../recruiter/infrastructure/CandidateApiRepository";
 import type { AttachmentResponse } from "../recruiter/domain/types";
 import "./CandidateListPage.css";
@@ -38,6 +39,7 @@ export default function CandidateListPage() {
     setSearch,
     setPage,
   } = useCandidateApiList(10);
+  const { catalogs } = useCatalogs();
 
   const [cvId, setCvId] = useState<number | null>(null);
   const [cvName, setCvName] = useState("");
@@ -109,6 +111,7 @@ export default function CandidateListPage() {
                   <th>Estado</th>
                   <th>Último cargo</th>
                   <th>Habilidades técnicas</th>
+                  <th>Idiomas</th>
                   <th aria-label="Acciones" />
                 </tr>
               </thead>
@@ -125,6 +128,15 @@ export default function CandidateListPage() {
                     </td>
                     <td>{c.professionalProfile?.latestPosition || "-"}</td>
                     <td>{c.hardSkills?.map((s) => `Skill #${s.hardSkillId}`).join(", ") || "-"}</td>
+                    <td>
+                      {c.languages && c.languages.length > 0
+                        ? c.languages.map((l) => {
+                            const lang = catalogs?.languages.find((cl) => cl.id === l.languageId);
+                            const level = catalogs?.languageLevels.find((cl) => cl.id === l.languageLevelId);
+                            return `${lang?.name ?? `#${l.languageId}`}${level ? ` (${level.code.toUpperCase()})` : ""}`;
+                          }).join(", ")
+                        : "-"}
+                    </td>
                     <td className="candidate-cell-actions" style={{ whiteSpace: "nowrap" }}>
                       <Link
                         to={`/recruiter/candidates/${c.id}`}
