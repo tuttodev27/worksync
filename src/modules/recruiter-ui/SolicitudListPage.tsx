@@ -4,7 +4,7 @@
  */
 
 import { Link } from "react-router-dom";
-import { useSolicitudList } from "../recluiter/application/useSolicitudList";
+import { useSolicitudList } from "../recruiter/application/useSolicitudList";
 import { SOLICITUD_STATUS } from "../../shared/constants/forms";
 import "./SolicitudListPage.css";
 
@@ -43,7 +43,7 @@ export default function SolicitudListPage() {
             Gestiona las ofertas de trabajo y los candidatos asignados.
           </p>
         </div>
-        <Link to="/recluiter/solicitudes/new">
+        <Link to="/recruiter/solicitudes/new">
           <button className="solicitud-btn-primary">+ Nueva solicitud</button>
         </Link>
       </div>
@@ -94,7 +94,7 @@ export default function SolicitudListPage() {
                     </td>
                     <td className="solicitud-cell-actions">
                       <Link
-                        to={`/recluiter/solicitudes/${s.id}`}
+                        to={`/recruiter/solicitudes/${s.id}`}
                         className="solicitud-link-action"
                       >
                         Editar

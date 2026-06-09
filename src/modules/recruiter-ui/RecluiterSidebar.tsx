@@ -27,7 +27,7 @@ export default function RecluiterSidebar() {
 
       <nav className="sidebar-nav">
         <NavLink
-          to="/recluiter"
+          to="/recruiter"
           end
           className={({ isActive }) =>
             isActive ? "nav-link active" : "nav-link"
@@ -48,7 +48,7 @@ export default function RecluiterSidebar() {
         </NavLink>
 
         <NavLink
-          to="/recluiter/candidates"
+          to="/recruiter/candidates"
           className={({ isActive }) =>
             isActive ? "nav-link active" : "nav-link"
           }
@@ -68,7 +68,7 @@ export default function RecluiterSidebar() {
         </NavLink>
 
         <NavLink
-          to="/recluiter/solicitudes"
+          to="/recruiter/solicitudes"
           className={({ isActive }) =>
             isActive ? "nav-link active" : "nav-link"
           }

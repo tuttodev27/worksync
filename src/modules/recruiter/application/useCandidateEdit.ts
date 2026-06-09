@@ -22,10 +22,6 @@ export interface CandidateEditFormData {
   email: string;
   phone: string;
   identityDocument: string;
-  countryCode: string;
-  location: string;
-  linkedinUrl: string;
-  githubUrl: string;
   latestPosition: string;
   yearsExperience: string;
   headline: string;
@@ -108,10 +104,6 @@ export function useCandidateEdit(): UseCandidateEditReturn {
     email: "",
     phone: "",
     identityDocument: "",
-    countryCode: "",
-    location: "",
-    linkedinUrl: "",
-    githubUrl: "",
     latestPosition: "",
     yearsExperience: "",
     headline: "",
@@ -137,16 +129,22 @@ export function useCandidateEdit(): UseCandidateEditReturn {
       .getById(Number(id))
       .then((candidate) => {
         if (cancelled) return;
+
+        const langId = candidate.languages?.[0]?.languageId;
+        const langLevelId = candidate.languages?.[0]?.languageLevelId;
+        const matchedLang = catalogs && langId != null
+          ? catalogs.languages.find((l) => l.id === langId)
+          : undefined;
+        const matchedLevel = catalogs && langLevelId != null
+          ? catalogs.languageLevels.find((l) => l.id === langLevelId)
+          : undefined;
+
         setForm({
           firstName: candidate.firstName ?? "",
           lastName: candidate.lastName ?? "",
           email: candidate.email ?? "",
           phone: candidate.phone ?? "",
           identityDocument: candidate.identityDocument ?? "",
-          countryCode: candidate.countryCode ?? "",
-          location: candidate.location ?? "",
-          linkedinUrl: candidate.linkedinUrl ?? "",
-          githubUrl: candidate.githubUrl ?? "",
           latestPosition: candidate.professionalProfile?.latestPosition ?? "",
           yearsExperience: candidate.professionalProfile?.yearsExperience != null
             ? String(candidate.professionalProfile.yearsExperience)
@@ -158,14 +156,10 @@ export function useCandidateEdit(): UseCandidateEditReturn {
             : "",
           degree: candidate.educations?.[0]?.degree ?? "",
           institution: candidate.educations?.[0]?.institution ?? "",
-          language: candidate.languages?.[0]?.languageId
-            ? String(candidate.languages[0].languageId)
-            : "",
-          languageLevel: candidate.languages?.[0]?.languageLevelId
-            ? String(candidate.languages[0].languageLevelId)
-            : "",
-          technicalSkills: candidate.hardSkills?.map((s) => `Skill #${s.hardSkillId}`).join(", ") ?? "",
-          softSkills: candidate.softSkills?.map((s) => `Skill #${s.softSkillId}`).join(", ") ?? "",
+          language: matchedLang?.name ?? "",
+          languageLevel: matchedLevel?.code ?? "",
+          technicalSkills: "",
+          softSkills: "",
         });
         setLoading(false);
       })
@@ -180,7 +174,7 @@ export function useCandidateEdit(): UseCandidateEditReturn {
       });
 
     return () => { cancelled = true; };
-  }, [id]);
+  }, [id, catalogs]);
 
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -192,9 +186,9 @@ export function useCandidateEdit(): UseCandidateEditReturn {
 
   const handleCancel = useCallback(() => {
     if (id) {
-      navigate(`/recluiter/candidates/${id}`);
+      navigate(`/recruiter/candidates/${id}`);
     } else {
-      navigate("/recluiter/candidates");
+      navigate("/recruiter/candidates");
     }
   }, [navigate, id]);
 
@@ -243,11 +237,7 @@ export function useCandidateEdit(): UseCandidateEditReturn {
 
       const payload: UpdateCandidatePayload = {
         phone: form.phone.trim() || undefined,
-        countryCode: form.countryCode.trim() || undefined,
         identityDocument: form.identityDocument.trim() || undefined,
-        location: form.location.trim() || undefined,
-        linkedinUrl: form.linkedinUrl.trim() || undefined,
-        githubUrl: form.githubUrl.trim() || undefined,
       };
 
       if (professionalProfile.latestPosition || professionalProfile.experienceRangeId || professionalProfile.headline || professionalProfile.summary) {
@@ -259,7 +249,7 @@ export function useCandidateEdit(): UseCandidateEditReturn {
       setSaving(true);
       try {
         await candidateRepository.update(Number(id), payload);
-        navigate(`/recluiter/candidates/${id}`);
+        navigate(`/recruiter/candidates/${id}`);
       } catch (err) {
         setError(describeError(err));
       } finally {

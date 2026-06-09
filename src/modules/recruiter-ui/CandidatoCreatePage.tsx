@@ -7,8 +7,8 @@
 import { useState, type ChangeEvent } from "react";
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
-import { useCandidate } from "../recluiter/application/useCandidate";
-import { useCatalogs } from "../recluiter/application/useCatalogs";
+import { useCandidate } from "../recruiter/application/useCandidate";
+import { useCatalogs } from "../recruiter/application/useCatalogs";
 import "./CandidatoCreatePage.css";
 
 GlobalWorkerOptions.workerSrc = pdfWorker;
@@ -506,7 +506,7 @@ export default function CandidatoCreatePage() {
                 <option value="">Seleccione</option>
                 {catalogs.languageLevels.map((l) => (
                   <option key={l.id} value={l.code}>
-                    {l.code} ({l.name})
+                    {l.code.toUpperCase()} ({l.name})
                   </option>
                 ))}
               </select>

@@ -4,9 +4,9 @@
  */
 
 import { useParams } from "react-router-dom";
-import { useSolicitud } from "../recluiter/application/useSolicitud";
-import { useCandidateList } from "../recluiter/application/useCandidateList";
-import { useCandidateMatcher } from "../recluiter/application/useCandidateMatcher";
+import { useSolicitud } from "../recruiter/application/useSolicitud";
+import { useCandidateList } from "../recruiter/application/useCandidateList";
+import { useCandidateMatcher } from "../recruiter/application/useCandidateMatcher";
 import { SOLICITUD_STATUS } from "../../shared/constants/forms";
 import "./SolicitudCreatePage.css";
 

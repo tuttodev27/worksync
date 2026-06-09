@@ -20,19 +20,14 @@ import PermissionCreatePage from "../../modules/admin-ui/PermissionCreatePage";
 import ModuloCreatePage from "../../modules/admin-ui/ModuloCreatePage";
 import MenuCreatePage from "../../modules/admin-ui/MenuCreatePage";
 
-// Recruiter imports
-import RecluiterLayout from "../../modules/recluiter-ui/RecluiterLayout";
-import RecluiterDashboard from "../../modules/recluiter-ui/RecluiterDashboard";
-import CandidateListPage from "../../modules/recluiter-ui/CandidateListPage";
-import CandidateDetailPage from "../../modules/recluiter-ui/CandidateDetailPage";
-import CandidateEditPage from "../../modules/recluiter-ui/CandidateEditPage";
-import CandidatoCreatePage from "../../modules/recluiter-ui/CandidatoCreatePage";
+import RecluiterLayout from "../../modules/recruiter-ui/RecluiterLayout";
+import RecluiterDashboard from "../../modules/recruiter-ui/RecluiterDashboard";
+import CandidateListPage from "../../modules/recruiter-ui/CandidateListPage";
+import CandidateDetailPage from "../../modules/recruiter-ui/CandidateDetailPage";
+import CandidateEditPage from "../../modules/recruiter-ui/CandidateEditPage";
+import CandidatoCreatePage from "../../modules/recruiter-ui/CandidatoCreatePage";
 
-
-function RequireAuth({ children }: { children: React.ReactNode }) {
-  const token = localStorage.getItem("token");
-  return token ? children : <Navigate to="/login" replace />;
-}
+import RequireRole from "../../shared/components/RequireRole";
 
 export default function AppRouter() {
   return (
@@ -44,48 +39,167 @@ export default function AppRouter() {
 
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-        {/* 🔥 ADMIN */}
+        {/* 🔥 ADMIN — solo rol ADMIN */}
         <Route
           path="/admin"
           element={
-            <RequireAuth>
+            <RequireRole allowedRoles={["ADMIN"]}>
               <AdminLayout />
-            </RequireAuth>
+            </RequireRole>
           }
         >
-          <Route index element={<ErrorBoundary><AdminDashboard /></ErrorBoundary>} />
+          <Route
+            index
+            element={
+              <ErrorBoundary>
+                <AdminDashboard />
+              </ErrorBoundary>
+            }
+          />
 
-          <Route path="users" element={<ErrorBoundary><UsersListPage /></ErrorBoundary>} />
-          <Route path="users/create" element={<ErrorBoundary><RegisterPage /></ErrorBoundary>} />
-          <Route path="users/:id/edit" element={<ErrorBoundary><EditUserPage /></ErrorBoundary>} />
+          <Route
+            path="users"
+            element={
+              <ErrorBoundary>
+                <UsersListPage />
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="users/create"
+            element={
+              <ErrorBoundary>
+                <RegisterPage />
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="users/:id/edit"
+            element={
+              <ErrorBoundary>
+                <EditUserPage />
+              </ErrorBoundary>
+            }
+          />
 
-          <Route path="roles" element={<ErrorBoundary><RolesPage /></ErrorBoundary>} />
-          <Route path="roles/new" element={<ErrorBoundary><RoleCreatePage /></ErrorBoundary>} />
+          <Route
+            path="roles"
+            element={
+              <ErrorBoundary>
+                <RolesPage />
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="roles/new"
+            element={
+              <ErrorBoundary>
+                <RoleCreatePage />
+              </ErrorBoundary>
+            }
+          />
 
-          <Route path="modules" element={<ErrorBoundary><ModuloPage /></ErrorBoundary>} />
-          <Route path="modules/new" element={<ErrorBoundary><ModuloCreatePage /></ErrorBoundary>} />
+          <Route
+            path="modules"
+            element={
+              <ErrorBoundary>
+                <ModuloPage />
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="modules/new"
+            element={
+              <ErrorBoundary>
+                <ModuloCreatePage />
+              </ErrorBoundary>
+            }
+          />
 
-          <Route path="menu" element={<ErrorBoundary><MenusPage /></ErrorBoundary>} />
-          <Route path="menu/new" element={<ErrorBoundary><MenuCreatePage /></ErrorBoundary>} />
+          <Route
+            path="menu"
+            element={
+              <ErrorBoundary>
+                <MenusPage />
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="menu/new"
+            element={
+              <ErrorBoundary>
+                <MenuCreatePage />
+              </ErrorBoundary>
+            }
+          />
 
-          <Route path="permissions" element={<ErrorBoundary><PermissionListPage /></ErrorBoundary>} />
-          <Route path="permissions/create" element={<ErrorBoundary><PermissionCreatePage /></ErrorBoundary>} />
+          <Route
+            path="permissions"
+            element={
+              <ErrorBoundary>
+                <PermissionListPage />
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="permissions/create"
+            element={
+              <ErrorBoundary>
+                <PermissionCreatePage />
+              </ErrorBoundary>
+            }
+          />
         </Route>
 
-        {/* 🔥 RECRUITER */}
+        {/* 🔥 RECRUITER — solo rol RECRUITER (ruta canónica) */}
         <Route
-          path="/recluiter"
+          path="/recruiter"
           element={
-            <RequireAuth>
+            <RequireRole allowedRoles={["RECRUITER"]}>
               <RecluiterLayout />
-            </RequireAuth>
+            </RequireRole>
           }
         >
-          <Route index element={<ErrorBoundary><RecluiterDashboard /></ErrorBoundary>} />
-          <Route path="candidates" element={<ErrorBoundary><CandidateListPage /></ErrorBoundary>} />
-          <Route path="candidates/new" element={<ErrorBoundary><CandidatoCreatePage /></ErrorBoundary>} />
-          <Route path="candidates/:id" element={<ErrorBoundary><CandidateDetailPage /></ErrorBoundary>} />
-          <Route path="candidates/:id/edit" element={<ErrorBoundary><CandidateEditPage /></ErrorBoundary>} />
+          <Route
+            index
+            element={
+              <ErrorBoundary>
+                <RecluiterDashboard />
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="candidates"
+            element={
+              <ErrorBoundary>
+                <CandidateListPage />
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="candidates/new"
+            element={
+              <ErrorBoundary>
+                <CandidatoCreatePage />
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="candidates/:id"
+            element={
+              <ErrorBoundary>
+                <CandidateDetailPage />
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="candidates/:id/edit"
+            element={
+              <ErrorBoundary>
+                <CandidateEditPage />
+              </ErrorBoundary>
+            }
+          />
         </Route>
 
         {/* 🔥 FALLBACK */}

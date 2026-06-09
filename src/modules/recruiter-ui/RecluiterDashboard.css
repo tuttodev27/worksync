@@ -1,0 +1,30 @@
+@import url("../admin-ui/AdminDashboard.css");
+
+.dash-grid-1 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 860px) {
+  .dash-grid-1 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dash-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  color: #b91c1c;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+.dash-error-banner svg {
+  flex-shrink: 0;
+}
