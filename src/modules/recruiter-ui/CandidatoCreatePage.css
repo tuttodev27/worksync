@@ -89,6 +89,7 @@
   padding: 10px 12px;
   font-size: 14px;
   transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
 }
 
 textarea.form-input {
@@ -156,4 +157,6 @@ textarea.form-input {
   .candidato-page {
     padding: 16px;
   }
+
 }
+
