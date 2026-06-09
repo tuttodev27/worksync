@@ -1,19 +1,9 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useCandidateApiList } from "../recluiter/application/useCandidateApiList";
+import { useCandidateApiList } from "../recruiter/application/useCandidateApiList";
+import { candidateRepository } from "../recruiter/infrastructure/CandidateApiRepository";
+import type { AttachmentResponse } from "../recruiter/domain/types";
 import "./CandidateListPage.css";
-
-function formatDate(iso: string): string {
-  try {
-    const d = new Date(iso);
-    return d.toLocaleDateString("es-CL", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
-  } catch {
-    return iso;
-  }
-}
 
 function stateLabel(state?: string): string {
   if (!state) return "-";
@@ -47,8 +37,32 @@ export default function CandidateListPage() {
     search,
     setSearch,
     setPage,
-    refresh,
   } = useCandidateApiList(10);
+
+  const [cvId, setCvId] = useState<number | null>(null);
+  const [cvName, setCvName] = useState("");
+  const [cvAttachments, setCvAttachments] = useState<AttachmentResponse[]>([]);
+  const [cvLoading, setCvLoading] = useState(false);
+
+  async function handleViewCv(candidateId: number, name: string) {
+    setCvId(candidateId);
+    setCvName(name);
+    setCvLoading(true);
+    try {
+      const attachments = await candidateRepository.listAttachments(candidateId);
+      setCvAttachments(attachments);
+    } catch {
+      setCvAttachments([]);
+    } finally {
+      setCvLoading(false);
+    }
+  }
+
+  function handleCloseCv() {
+    setCvId(null);
+    setCvName("");
+    setCvAttachments([]);
+  }
 
   return (
     <div className="candidate-list-page">
@@ -59,7 +73,7 @@ export default function CandidateListPage() {
             Fichas de candidatos registrados en el sistema ({total}).
           </p>
         </div>
-        <Link to="/recluiter/candidates/new">
+        <Link to="/recruiter/candidates/new">
           <button className="candidate-btn-primary">+ Nuevo candidato</button>
         </Link>
       </div>
@@ -68,7 +82,7 @@ export default function CandidateListPage() {
         <input
           type="text"
           className="candidate-search-input"
-          placeholder="Buscar por nombre, email o documento..."
+          placeholder="Buscar por nombre..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -92,11 +106,9 @@ export default function CandidateListPage() {
               <thead>
                 <tr>
                   <th>Nombre</th>
-                  <th>Email</th>
-                  <th>Teléfono</th>
-                  <th>Documento</th>
                   <th>Estado</th>
-                  <th>Creado</th>
+                  <th>Último cargo</th>
+                  <th>Habilidades técnicas</th>
                   <th aria-label="Acciones" />
                 </tr>
               </thead>
@@ -106,26 +118,27 @@ export default function CandidateListPage() {
                     <td className="candidate-cell-name">
                       {c.firstName} {c.lastName}
                     </td>
-                    <td>{c.email}</td>
-                    <td className="candidate-cell-phone">{c.phone || "-"}</td>
-                    <td className="candidate-cell-doc">
-                      {c.identityDocument || "-"}
-                    </td>
                     <td>
                       <span className={stateClass(c.currentState)}>
                         {stateLabel(c.currentState)}
                       </span>
                     </td>
-                    <td className="candidate-cell-date">
-                      {formatDate(c.createdAt)}
-                    </td>
-                    <td className="candidate-cell-actions">
+                    <td>{c.professionalProfile?.latestPosition || "-"}</td>
+                    <td>{c.hardSkills?.map((s) => `Skill #${s.hardSkillId}`).join(", ") || "-"}</td>
+                    <td className="candidate-cell-actions" style={{ whiteSpace: "nowrap" }}>
                       <Link
-                        to={`/recluiter/candidates/${c.id}`}
+                        to={`/recruiter/candidates/${c.id}`}
                         className="candidate-link-action"
+                        style={{ marginRight: 12 }}
                       >
                         Ver ficha
                       </Link>
+                      <button
+                        className="candidate-link-action"
+                        onClick={() => handleViewCv(c.id, `${c.firstName} ${c.lastName}`)}
+                      >
+                        Ver CV
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -155,6 +168,42 @@ export default function CandidateListPage() {
             </div>
           )}
         </>
+      )}
+
+      {cvId !== null && (
+        <div className="cv-modal-overlay" onClick={handleCloseCv}>
+          <div className="cv-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="cv-modal-header">
+              <h3>CV de {cvName}</h3>
+              <button className="cv-modal-close" onClick={handleCloseCv}>
+                &times;
+              </button>
+            </div>
+            <div className="cv-modal-body">
+              {cvLoading ? (
+                <p className="candidate-list-empty">Cargando documentos...</p>
+              ) : cvAttachments.length === 0 ? (
+                <p className="candidate-list-empty">Sin documentos adjuntos.</p>
+              ) : (
+                <ul className="cv-attachment-list">
+                  {cvAttachments.map((a) => (
+                    <li key={a.id}>
+                      <a
+                        href={a.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="candidate-link-action"
+                      >
+                        {a.fileName}
+                      </a>
+                      {a.parseStatus === "COMPLETED" && " (Procesado)"}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

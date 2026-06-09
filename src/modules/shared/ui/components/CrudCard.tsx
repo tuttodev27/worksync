@@ -31,8 +31,8 @@ export default function CrudCard({
       navigate("/admin/permissions/create");
       return;
     }
-    if (to === "/recluiter/candidates") {
-      navigate("/recluiter/candidates/new");
+    if (to === "/recruiter/candidates") {
+      navigate("/recruiter/candidates/new");
       return;
     }
     navigate(`${to}/new`);

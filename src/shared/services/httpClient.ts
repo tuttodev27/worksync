@@ -79,6 +79,8 @@ export async function httpRequest<T = unknown>(
   });
 
   if (response.status === 401 && auth) {
+  const isAuthService = (baseUrl ?? "").includes("8083");
+  if (isAuthService) {
     clearStoredSession();
     if (
       typeof window !== "undefined" &&
@@ -86,7 +88,11 @@ export async function httpRequest<T = unknown>(
     ) {
       window.location.href = "/login";
     }
+  } else {
+    const message = await parseErrorBody(response);
+    throw new HttpError(response.status, message);
   }
+}
 
   if (!response.ok) {
     const message = await parseErrorBody(response);

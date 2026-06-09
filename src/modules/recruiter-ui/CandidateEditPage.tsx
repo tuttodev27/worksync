@@ -1,4 +1,4 @@
-import { useCandidateEdit } from "../recluiter/application/useCandidateEdit";
+import { useCandidateEdit } from "../recruiter/application/useCandidateEdit";
 import "./CandidatoCreatePage.css";
 
 export default function CandidateEditPage() {
@@ -108,60 +108,7 @@ export default function CandidateEditPage() {
                 onChange={handleChange}
               />
             </div>
-            <div className="form-group">
-              <label htmlFor="countryCode">Código de país</label>
-              <select
-                id="countryCode"
-                name="countryCode"
-                className="form-input"
-                value={form.countryCode}
-                onChange={handleChange}
-                disabled={catalogsLoading}
-              >
-                <option value="">Seleccione</option>
-                {catalogs.countryCodes.map((c) => (
-                  <option key={c.id} value={c.isoCode}>
-                    {c.phoneCode} ({c.isoCode})
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="form-group">
-              <label htmlFor="location">Ubicación</label>
-              <input
-                id="location"
-                name="location"
-                type="text"
-                className="form-input"
-                placeholder="Ciudad, País"
-                value={form.location}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="linkedinUrl">LinkedIn</label>
-              <input
-                id="linkedinUrl"
-                name="linkedinUrl"
-                type="url"
-                className="form-input"
-                placeholder="https://linkedin.com/in/..."
-                value={form.linkedinUrl}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="githubUrl">GitHub</label>
-              <input
-                id="githubUrl"
-                name="githubUrl"
-                type="url"
-                className="form-input"
-                placeholder="https://github.com/..."
-                value={form.githubUrl}
-                onChange={handleChange}
-              />
-            </div>
+
           </div>
         </div>
 
@@ -307,7 +254,7 @@ export default function CandidateEditPage() {
                 <option value="">Seleccione</option>
                 {catalogs.languageLevels.map((l) => (
                   <option key={l.id} value={l.code}>
-                    {l.code} ({l.name})
+                    {l.code.toUpperCase()} ({l.name})
                   </option>
                 ))}
               </select>

@@ -121,7 +121,7 @@ export function useSolicitud(
   }, []);
 
   const handleCancel = useCallback(() => {
-    navigate("/recluiter/solicitudes");
+    navigate("/recruiter/solicitudes");
   }, [navigate]);
 
   const assignCandidate = useCallback((id: string) => {
@@ -196,7 +196,7 @@ export function useSolicitud(
         }
 
         writeSolicitudes(list);
-        navigate("/recluiter/solicitudes");
+        navigate("/recruiter/solicitudes");
       } catch (err) {
         setError(
           err instanceof Error

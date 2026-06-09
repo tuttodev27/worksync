@@ -139,18 +139,6 @@
   font-weight: 600;
 }
 
-.candidate-cell-phone,
-.candidate-cell-doc {
-  color: #475569;
-  font-variant-numeric: tabular-nums;
-}
-
-.candidate-cell-date {
-  color: #64748b;
-  font-size: 13px;
-  white-space: nowrap;
-}
-
 .candidate-cell-actions {
   text-align: right;
 }
@@ -253,4 +241,75 @@
 .candidate-page-info {
   font-size: 13px;
   color: #64748b;
+}
+
+.cv-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.cv-modal {
+  background: #ffffff;
+  border-radius: 14px;
+  width: 480px;
+  max-width: 90vw;
+  max-height: 80vh;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.cv-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.cv-modal-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.cv-modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.cv-modal-close:hover {
+  color: #0f172a;
+}
+
+.cv-modal-body {
+  padding: 16px 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.cv-attachment-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cv-attachment-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.cv-attachment-list li:last-child {
+  border-bottom: none;
 }

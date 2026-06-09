@@ -53,15 +53,18 @@ export function useLogin(
       setError("");
       setLoading(true);
 
-      try {
-        const result: AuthResult = await repository.login(form);
-        saveAuthUser(result.user);
-        navigate("/admin");
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Error al iniciar sesión");
-      } finally {
-        setLoading(false);
-      }
+    try {
+  const result: AuthResult = await repository.login(form);
+  console.log("Login result →", result);
+  console.log("user.role →", result.user.role);
+  saveAuthUser(result.user);
+  const target = result.user.role === "ADMIN" ? "/admin" : "/recruiter";
+  console.log("navegando a →", target);
+  navigate(target);
+} catch (err) {
+  console.log("ERROR en login →", err);
+  setError(err instanceof Error ? err.message : "Error al iniciar sesión");
+}
     },
     [form, repository, navigate]
   );

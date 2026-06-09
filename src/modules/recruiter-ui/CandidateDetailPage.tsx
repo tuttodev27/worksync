@@ -3,13 +3,13 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   candidateRepository,
   CandidateApiError,
-} from "../recluiter/infrastructure/CandidateApiRepository";
+} from "../recruiter/infrastructure/CandidateApiRepository";
+import { useCatalogs } from "../recruiter/application/useCatalogs";
 import type {
   CandidateApiResponse,
   AttachmentResponse,
   StatusHistoryResponse,
-} from "../recluiter/domain/types";
-import ConfirmModal from "../shared/ui/components/ConfirmModal";
+} from "../recruiter/domain/types";
 import "./CandidateDetailPage.css";
 
 function formatDate(iso?: string): string {
@@ -50,6 +50,7 @@ function stateLabel(state?: string): string {
 export default function CandidateDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { catalogs } = useCatalogs();
   const [candidate, setCandidate] = useState<CandidateApiResponse | null>(null);
   const [attachments, setAttachments] = useState<AttachmentResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -166,7 +167,7 @@ export default function CandidateDetailPage() {
     return (
       <div className="candidate-detail-page">
         <div className="candidate-detail-error">{error}</div>
-        <button className="candidate-btn-secondary" onClick={() => navigate("/recluiter/candidates")}>
+        <button className="candidate-btn-secondary" onClick={() => navigate("/recruiter/candidates")}>
           Volver a candidatos
         </button>
       </div>
@@ -190,10 +191,10 @@ export default function CandidateDetailPage() {
           </p>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <Link to={`/recluiter/candidates/${candidate.id}/edit`} className="candidate-btn-secondary" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center" }}>
+          <Link to={`/recruiter/candidates/${candidate.id}/edit`} className="candidate-btn-secondary" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center" }}>
             Editar
           </Link>
-          <button className="candidate-btn-secondary" onClick={() => navigate("/recluiter/candidates")}>
+          <button className="candidate-btn-secondary" onClick={() => navigate("/recruiter/candidates")}>
             Volver
           </button>
         </div>
@@ -219,26 +220,7 @@ export default function CandidateDetailPage() {
               <dt>Documento</dt>
               <dd>{candidate.identityDocument || "-"}</dd>
             </div>
-            <div className="detail-row">
-              <dt>Código interno</dt>
-              <dd>{candidate.code || "-"}</dd>
-            </div>
-            <div className="detail-row">
-              <dt>País</dt>
-              <dd>{candidate.countryCode || "-"}</dd>
-            </div>
-            <div className="detail-row">
-              <dt>Ubicación</dt>
-              <dd>{candidate.location || "-"}</dd>
-            </div>
-            <div className="detail-row">
-              <dt>LinkedIn</dt>
-              <dd>{candidate.linkedinUrl ? <a href={candidate.linkedinUrl} target="_blank" rel="noopener noreferrer">Ver perfil</a> : "-"}</dd>
-            </div>
-            <div className="detail-row">
-              <dt>GitHub</dt>
-              <dd>{candidate.githubUrl ? <a href={candidate.githubUrl} target="_blank" rel="noopener noreferrer">Ver perfil</a> : "-"}</dd>
-            </div>
+
           </dl>
         </div>
 
@@ -292,12 +274,16 @@ export default function CandidateDetailPage() {
           <h3>Idiomas</h3>
           {candidate.languages && candidate.languages.length > 0 ? (
             <ul className="detail-simple-list">
-              {candidate.languages.map((l) => (
-                <li key={l.id}>
-                  Idioma #{l.languageId}
-                  {l.languageLevelId ? ` (Nivel #${l.languageLevelId})` : ""}
-                </li>
-              ))}
+              {candidate.languages.map((l) => {
+                const lang = catalogs?.languages.find((cl) => cl.id === l.languageId);
+                const level = catalogs?.languageLevels.find((cl) => cl.id === l.languageLevelId);
+                return (
+                  <li key={l.id}>
+                    {lang?.name ?? `Idioma #${l.languageId}`}
+                    {level ? ` ${level.code.toUpperCase()} (${level.name})` : ""}
+                  </li>
+                );
+              })}
             </ul>
           ) : (
             <p className="candidate-detail-empty">Sin idiomas registrados.</p>
@@ -334,114 +320,6 @@ export default function CandidateDetailPage() {
         </div>
       </div>
 
-      <div className="candidate-detail-card">
-        <h3>Estado del candidato</h3>
-        {statusError && <p className="candidate-upload-error">{statusError}</p>}
-        {candidate.currentState && (
-          <p style={{ margin: "0 0 12px", fontSize: 14, color: "#475569" }}>
-            Estado actual:{" "}
-            <span className={stateClass(candidate.currentState)}>
-              {stateLabel(candidate.currentState)}
-            </span>
-          </p>
-        )}
-        {availableTransitions.length > 0 ? (
-          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-            <select
-              className="candidate-search-input"
-              style={{ maxWidth: 200, minHeight: 38 }}
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              disabled={statusUpdating}
-            >
-              <option value="">Seleccionar estado</option>
-              {availableTransitions.map((st) => (
-                <option key={st} value={st}>
-                  {stateLabel(st)}
-                </option>
-              ))}
-            </select>
-            <button
-              className="candidate-btn-primary"
-              style={{ padding: "8px 14px", fontSize: 13 }}
-              disabled={!selectedStatus || selectedStatus === candidate.currentState || statusUpdating}
-              onClick={() => setShowStatusConfirm(true)}
-            >
-              {statusUpdating ? "Actualizando…" : "Cambiar estado"}
-            </button>
-          </div>
-        ) : candidate.currentState === "REJECTED" || candidate.currentState === "HIRED" ? (
-          <p className="candidate-detail-empty">Estado final. No se pueden realizar más transiciones.</p>
-        ) : (
-          <p className="candidate-detail-empty">Sin estado asignado.</p>
-        )}
-
-        {statusHistory.length > 0 && (
-          <div style={{ marginTop: 16 }}>
-            <h4 style={{ margin: "0 0 8px", fontSize: 13, color: "#64748b" }}>Historial de cambios</h4>
-            <table className="candidate-table" style={{ fontSize: 13 }}>
-              <thead>
-                <tr>
-                  <th>Estado anterior</th>
-                  <th>Nuevo estado</th>
-                  <th>Fecha</th>
-                </tr>
-              </thead>
-              <tbody>
-                {statusHistory.map((h) => (
-                  <tr key={h.id}>
-                    <td>{h.previousState ? stateLabel(h.previousState) : "-"}</td>
-                    <td><span className={stateClass(h.newState)}>{stateLabel(h.newState)}</span></td>
-                    <td className="candidate-cell-date">{h.changedAt ? formatDate(h.changedAt) : "-"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      <div className="candidate-detail-card">
-        <h3>Documentos adjuntos</h3>
-        {attachments.length > 0 ? (
-          <ul className="detail-simple-list">
-            {attachments.map((a) => (
-              <li key={a.id}>
-                {a.fileName}
-                {a.parseStatus === "COMPLETED" ? " (CV procesado)" : a.parseStatus === "FAILED" ? " (Error al procesar)" : ` (${a.parseStatus || "Pendiente"})`}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="candidate-detail-empty">Sin documentos adjuntos.</p>
-        )}
-
-        <div className="candidate-upload-section">
-          <label className="candidate-upload-label">
-            Subir CV (PDF)
-            <input
-              type="file"
-              accept="application/pdf,.pdf"
-              onChange={handleCvUpload}
-              disabled={uploading}
-              className="candidate-upload-input"
-            />
-          </label>
-          {uploading && <p className="candidate-upload-status">Subiendo y procesando CV...</p>}
-          {uploadError && <p className="candidate-upload-error">{uploadError}</p>}
-        </div>
-      </div>
-
-      <ConfirmModal
-        open={showStatusConfirm}
-        title="Cambiar estado"
-        message={`¿Estás seguro de cambiar el estado a "${selectedStatus ? stateLabel(selectedStatus) : ""}"?`}
-        confirmLabel="Confirmar"
-        cancelLabel="Cancelar"
-        loading={statusUpdating}
-        onConfirm={handleStatusChange}
-        onCancel={() => setShowStatusConfirm(false)}
-      />
     </div>
   );
 }

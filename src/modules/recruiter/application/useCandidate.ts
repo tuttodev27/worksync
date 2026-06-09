@@ -220,7 +220,7 @@ export function useCandidate(options: UseCandidateOptions = {}): UseCandidateRet
   }, []);
 
   const handleCancel = useCallback(() => {
-    navigate("/recluiter/candidates");
+    navigate("/recruiter/candidates");
   }, [navigate]);
 
   const handleSubmit = useCallback(
@@ -246,7 +246,7 @@ export function useCandidate(options: UseCandidateOptions = {}): UseCandidateRet
       setLoading(true);
       try {
         await candidateRepository.create(payload);
-        navigate("/recluiter/candidates");
+        navigate("/recruiter/candidates");
       } catch (err) {
         setError(describeError(err));
       } finally {
