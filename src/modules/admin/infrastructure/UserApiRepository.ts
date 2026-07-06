@@ -11,6 +11,7 @@ import type {
   CreateUserPayload,
   UpdateUserPayload,
 } from "../domain/models/User";
+import type { Role } from "../domain/models/Role";
 import type { PageResponse } from "../../../shared/types/api";
 
 function buildQuery(active?: boolean): string {
@@ -92,9 +93,9 @@ export class UserApiRepository implements UserRepository {
     }
   }
 
-  async listAvailableRoles(): Promise<string[]> {
+  async listAvailableRoles(): Promise<Role[]> {
     try {
-      const response = await httpRequest<string[] | PageResponse<string>>("/api/users/roles", {
+      const response = await httpRequest<Role[] | PageResponse<Role>>("/api/users/roles", {
         baseUrl: this.baseUrl,
       });
       return Array.isArray(response) ? response : response.content;

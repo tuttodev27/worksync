@@ -166,19 +166,19 @@ export default function RegisterPage() {
 
             <div className="select-wrapper">
               <select
-                id="role"
-                name="role"
-                value={form.role}
+                id="roleId"
+                name="roleId"
+                value={form.roleId}
                 onChange={handleChange}
                 required
                 disabled={loadingRoles}
               >
-                <option value="" disabled>
+                <option value={0} disabled>
                   {loadingRoles ? "Cargando roles..." : "Selecciona un rol"}
                 </option>
                 {availableRoles.map((role) => (
-                  <option key={role} value={role}>
-                    {role}
+                  <option key={role.id} value={role.id}>
+                    {role.name}
                   </option>
                 ))}
               </select>

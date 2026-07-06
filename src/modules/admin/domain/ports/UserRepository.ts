@@ -8,6 +8,7 @@ import type {
   CreateUserPayload,
   UpdateUserPayload,
 } from "../models/User";
+import type { Role } from "../models/Role";
 
 export interface UserRepository {
   list(active?: boolean): Promise<User[]>;
@@ -15,7 +16,7 @@ export interface UserRepository {
   create(payload: CreateUserPayload): Promise<User>;
   update(id: number, payload: UpdateUserPayload): Promise<User>;
   delete(id: number): Promise<void>;
-  listAvailableRoles(): Promise<string[]>;
+  listAvailableRoles(): Promise<Role[]>;
 }
 
 export class UserError extends Error {
