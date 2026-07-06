@@ -22,6 +22,7 @@ export interface CandidateEditFormData {
   email: string;
   phone: string;
   identityDocument: string;
+  countryCode: string;
   latestPosition: string;
   yearsExperience: string;
   headline: string;
@@ -37,10 +38,12 @@ export interface CandidateEditFormData {
 
 interface UseCandidateEditReturn {
   form: CandidateEditFormData;
+  initialForm: CandidateEditFormData;
   error: string;
   loading: boolean;
   saving: boolean;
   notFound: boolean;
+  hasChanges: boolean;
   catalogs: RecruiterCatalogs;
   catalogsLoading: boolean;
   handleChange: (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
@@ -82,6 +85,15 @@ function findLanguageLevel(catalogs: RecruiterCatalogs | undefined, value: strin
     catalogs.languageLevels.find((l) => normalize(l.name) === target);
 }
 
+function findCountryCodeIso(catalogs: RecruiterCatalogs | undefined, phoneCode: string) {
+  if (!catalogs || !phoneCode) return undefined;
+  const target = phoneCode.trim();
+  const match = catalogs.countryCodes.find(
+    (c) => c.phoneCode === target || c.phoneCode === `+${target.replace(/^\+/, "")}`,
+  );
+  return match?.isoCode;
+}
+
 function describeError(err: unknown): string {
   if (err instanceof CandidateApiError) {
     if (err.status === 400) return err.message || "Los datos enviados no son validos.";
@@ -98,12 +110,13 @@ export function useCandidateEdit(): UseCandidateEditReturn {
   const navigate = useNavigate();
   const { catalogs, isLoading: catalogsLoading } = useCatalogs();
 
-  const [form, setForm] = useState<CandidateEditFormData>({
+  const emptyForm: CandidateEditFormData = {
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
     identityDocument: "",
+    countryCode: "",
     latestPosition: "",
     yearsExperience: "",
     headline: "",
@@ -115,11 +128,20 @@ export function useCandidateEdit(): UseCandidateEditReturn {
     languageLevel: "",
     technicalSkills: "",
     softSkills: "",
-  });
+  };
+
+  const [form, setForm] = useState<CandidateEditFormData>(emptyForm);
+  const [initialForm, setInitialForm] = useState<CandidateEditFormData>(emptyForm);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
   const [notFound, setNotFound] = useState<boolean>(false);
+
+  const hasChanges = useMemo(() => {
+    return Object.keys(emptyForm).some(
+      (key) => form[key as keyof CandidateEditFormData] !== initialForm[key as keyof CandidateEditFormData],
+    );
+  }, [form, initialForm]);
 
   useEffect(() => {
     if (!id) return;
@@ -139,12 +161,13 @@ export function useCandidateEdit(): UseCandidateEditReturn {
           ? catalogs.languageLevels.find((l) => l.id === langLevelId)
           : undefined;
 
-        setForm({
+        const loadedForm: CandidateEditFormData = {
           firstName: candidate.firstName ?? "",
           lastName: candidate.lastName ?? "",
           email: candidate.email ?? "",
           phone: candidate.phone ?? "",
           identityDocument: candidate.identityDocument ?? "",
+          countryCode: candidate.countryCode ?? "",
           latestPosition: candidate.professionalProfile?.latestPosition ?? "",
           yearsExperience: candidate.professionalProfile?.yearsExperience != null
             ? String(candidate.professionalProfile.yearsExperience)
@@ -160,7 +183,9 @@ export function useCandidateEdit(): UseCandidateEditReturn {
           languageLevel: matchedLevel?.code ?? "",
           technicalSkills: "",
           softSkills: "",
-        });
+        };
+        setForm(loadedForm);
+        setInitialForm(loadedForm);
         setLoading(false);
       })
       .catch((err) => {
@@ -238,6 +263,7 @@ export function useCandidateEdit(): UseCandidateEditReturn {
       const payload: UpdateCandidatePayload = {
         phone: form.phone.trim() || undefined,
         identityDocument: form.identityDocument.trim() || undefined,
+        countryCode: findCountryCodeIso(catalogs, form.countryCode),
       };
 
       if (professionalProfile.latestPosition || professionalProfile.experienceRangeId || professionalProfile.headline || professionalProfile.summary) {
@@ -261,10 +287,12 @@ export function useCandidateEdit(): UseCandidateEditReturn {
 
   return {
     form,
+    initialForm,
     error,
     loading,
     saving,
     notFound,
+    hasChanges,
     catalogs,
     catalogsLoading,
     handleChange,
