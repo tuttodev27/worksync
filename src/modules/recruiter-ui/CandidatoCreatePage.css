@@ -1,6 +1,6 @@
 /* ============================================================
    WorkSync ATS — CandidatoCreatePage.css
-   Estilo original + layout en 2 columnas
+   3-Step Wizard Styles
    ============================================================ */
 
 .candidato-page {
@@ -27,6 +27,117 @@
   font-size: 14px;
 }
 
+/* ---- Stepper ---- */
+
+.wizard-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 24px;
+}
+
+.wizard-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wizard-step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.wizard-step.active .wizard-step-number {
+  background: #7c3aed;
+  color: #ffffff;
+}
+
+.wizard-step-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #94a3b8;
+  transition: color 0.2s;
+}
+
+.wizard-step.active .wizard-step-label {
+  color: #0f172a;
+}
+
+.wizard-connector {
+  width: 48px;
+  height: 2px;
+  background: #e2e8f0;
+  margin: 0 8px;
+}
+
+.wizard-step.active + .wizard-connector {
+  background: #7c3aed;
+}
+
+/* ---- Step content ---- */
+
+.wizard-step-content h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.wizard-description {
+  margin: 0 0 16px;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.wizard-loading {
+  color: #7c3aed !important;
+  font-weight: 600;
+}
+
+.wizard-success {
+  color: #16a34a !important;
+  font-weight: 600;
+}
+
+.wizard-notice {
+  color: #94a3b8 !important;
+  font-style: italic;
+}
+
+/* ---- Wizard actions ---- */
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.wizard-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.wizard-nav {
+  display: flex;
+  gap: 10px;
+}
+
+/* ---- Form base (reused from original) ---- */
+
 .candidato-form {
   display: flex;
   flex-direction: column;
@@ -47,13 +158,6 @@
   border: 1px solid #e2e8f0;
   border-radius: 14px;
   padding: 16px;
-}
-
-.candidato-section h3 {
-  margin: 0 0 14px;
-  font-size: 16px;
-  color: #0f172a;
-  font-weight: 700;
 }
 
 .form-grid {
@@ -77,6 +181,30 @@
   font-size: 13px;
   color: #334155;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.required {
+  color: #dc2626;
+}
+
+.cv-badge {
+  font-size: 11px;
+  font-weight: 500;
+  background: #ede9fe;
+  color: #7c3aed;
+  padding: 2px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.field-error {
+  color: #dc2626;
+  font-size: 12px;
+  margin-top: 2px;
 }
 
 .form-input {
@@ -103,15 +231,26 @@ textarea.form-input {
   outline: none;
 }
 
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 2px;
+.input-error {
+  border-color: #dc2626;
 }
 
+.input-error:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+}
+
+.candidato-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+/* ---- Buttons ---- */
+
 .btn-secondary,
-.btn-primary {
+.btn-primary,
+.btn-danger {
   border: 0;
   border-radius: 10px;
   padding: 10px 14px;
@@ -131,19 +270,72 @@ textarea.form-input {
 }
 
 .btn-primary {
-  background: #2563eb;
+  background: #7c3aed;
   color: #ffffff;
 }
 
 .btn-primary:hover {
-  background: #1d4ed8;
+  background: #6d28d9;
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
 }
 
 .btn-secondary:disabled,
-.btn-primary:disabled {
+.btn-primary:disabled,
+.btn-danger:disabled {
   opacity: 0.65;
   cursor: not-allowed;
 }
+
+/* ---- Cancel modal ---- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.modal-content h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.modal-content p {
+  margin: 0 0 20px;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ---- Responsive ---- */
 
 @media (max-width: 860px) {
   .form-grid {
@@ -158,5 +350,26 @@ textarea.form-input {
     padding: 16px;
   }
 
-}
+  .wizard-stepper {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
 
+  .wizard-connector {
+    width: 24px;
+  }
+
+  .wizard-step-label {
+    font-size: 11px;
+  }
+
+  .wizard-actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+
+  .wizard-nav {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
