@@ -1,9 +1,3 @@
-/**
- * CandidatoCreatePage
- * Formulario ajustado a requerimiento de ficha de candidato (2 columnas)
- * Los selects se alimentan desde los catalogos de ats-postulant.
- */
-
 import { useState, type ChangeEvent } from "react";
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
@@ -187,6 +181,8 @@ const guessNameFromText = (
   return splitName(normalized);
 };
 
+type Step = 1 | 2 | 3;
+
 export default function CandidatoCreatePage() {
   const { catalogs, isLoading: catalogsLoading, error: catalogsError } =
     useCatalogs();
@@ -195,13 +191,20 @@ export default function CandidatoCreatePage() {
     error,
     loading,
     handleChange,
-    handleSubmit,
+    handleSubmit: originalHandleSubmit,
     handleCancel,
     setFormData,
     setErrorMessage,
   } = useCandidate({ catalogs });
+
+  const [step, setStep] = useState<Step>(1);
   const [isParsingCv, setIsParsingCv] = useState(false);
   const [uploadedCvName, setUploadedCvName] = useState("");
+  const [cvSuggestedFields, setCvSuggestedFields] = useState<Set<string>>(new Set());
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const isFieldSuggested = (fieldName: string) => cvSuggestedFields.has(fieldName);
 
   const handleCvUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -258,6 +261,20 @@ export default function CandidatoCreatePage() {
         languageLevel,
         technicalSkills,
       });
+
+      const suggested = new Set<string>();
+      if (firstName) suggested.add("firstName");
+      if (lastName) suggested.add("lastName");
+      if (email) suggested.add("email");
+      if (phone) suggested.add("phone");
+      if (phoneCode) suggested.add("notes");
+      if (latestPosition) suggested.add("education");
+      if (yearsLabel) suggested.add("skills");
+      if (educationLevel) suggested.add("status");
+      if (language) suggested.add("language");
+      if (languageLevel) suggested.add("languageLevel");
+      if (technicalSkills) suggested.add("technicalSkills");
+      setCvSuggestedFields(suggested);
     } catch {
       setErrorMessage("No se pudo procesar el CV. Intenta nuevamente.");
     } finally {
@@ -266,11 +283,52 @@ export default function CandidatoCreatePage() {
     }
   };
 
+  const validateStep2 = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!form.firstName.trim()) errors.firstName = "El nombre es obligatorio.";
+    if (!form.lastName.trim()) errors.lastName = "El apellido es obligatorio.";
+    if (!form.email.trim()) errors.email = "El email es obligatorio.";
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const goToNextStep = () => {
+    setFieldErrors({});
+    if (step === 2 && !validateStep2()) return;
+    setStep((prev) => Math.min(3, prev + 1) as Step);
+  };
+
+  const goToPrevStep = () => {
+    setFieldErrors({});
+    setStep((prev) => Math.max(1, prev - 1) as Step);
+  };
+
+  const handleCancelClick = () => {
+    setShowCancelModal(true);
+  };
+
+  const confirmCancel = () => {
+    setShowCancelModal(false);
+    handleCancel();
+  };
+
+  const dismissCancel = () => {
+    setShowCancelModal(false);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    if (step < 3) {
+      e.preventDefault();
+      return;
+    }
+    originalHandleSubmit(e);
+  };
+
   return (
     <div className="candidato-page">
       <div className="candidato-header">
         <h2>Nuevo Candidato</h2>
-        <p>Registra la ficha del candidato.</p>
+        <p>Registra la ficha del candidato en 3 pasos.</p>
       </div>
 
       {catalogsLoading && (
@@ -280,243 +338,34 @@ export default function CandidatoCreatePage() {
         <div className="candidato-error">{catalogsError}</div>
       )}
 
+      <div className="wizard-stepper">
+        <div className={`wizard-step ${step >= 1 ? "active" : ""}`}>
+          <span className="wizard-step-number">1</span>
+          <span className="wizard-step-label">Subir CV</span>
+        </div>
+        <div className="wizard-connector" />
+        <div className={`wizard-step ${step >= 2 ? "active" : ""}`}>
+          <span className="wizard-step-number">2</span>
+          <span className="wizard-step-label">Datos personales</span>
+        </div>
+        <div className="wizard-connector" />
+        <div className={`wizard-step ${step >= 3 ? "active" : ""}`}>
+          <span className="wizard-step-number">3</span>
+          <span className="wizard-step-label">Perfil profesional</span>
+        </div>
+      </div>
+
       <form onSubmit={handleSubmit} className="candidato-form">
         {error && <div className="candidato-error">{error}</div>}
 
-        <div className="candidato-section">
-          <h3>Ficha del candidato</h3>
+        {step === 1 && (
+          <div className="candidato-section wizard-step-content">
+            <h3>Paso 1 — Subir CV</h3>
+            <p className="wizard-description">
+              Sube el CV del candidato en formato PDF para extraer sus datos automáticamente.
+              Si no tienes el CV ahora, puedes continuar y llenar los datos manualmente.
+            </p>
 
-          <div className="form-grid">
-            <div className="form-group">
-              <label htmlFor="firstName">Nombre</label>
-              <input
-                id="firstName"
-                name="firstName"
-                type="text"
-                className="form-input"
-                placeholder="Nombre"
-                value={form.firstName}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="lastName">Apellido</label>
-              <input
-                id="lastName"
-                name="lastName"
-                type="text"
-                className="form-input"
-                placeholder="Apellido"
-                value={form.lastName}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="email">Email</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                className="form-input"
-                placeholder="correo@dominio.com"
-                value={form.email}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="experience">Documento de identificación</label>
-              <input
-                id="experience"
-                name="experience"
-                type="text"
-                className="form-input"
-                placeholder="Documento"
-                value={form.experience}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="notes">Código de país</label>
-              <select
-                id="notes"
-                name="notes"
-                className="form-input"
-                value={form.notes}
-                onChange={handleChange}
-                disabled={catalogsLoading}
-              >
-                <option value="">Seleccione</option>
-                {catalogs.countryCodes.map((c) => (
-                  <option key={c.id} value={c.phoneCode}>
-                    {c.phoneCode} ({c.isoCode})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="phone">Teléfono</label>
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                className="form-input"
-                placeholder="9 1234 5678"
-                value={form.phone}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="candidato-section">
-          <h3>Perfil profesional</h3>
-
-          <div className="form-grid">
-            <div className="form-group">
-              <label htmlFor="education">Último cargo</label>
-              <input
-                id="education"
-                name="education"
-                type="text"
-                className="form-input"
-                placeholder="Último cargo"
-                value={form.education}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="skills">Años de experiencia</label>
-              <select
-                id="skills"
-                name="skills"
-                className="form-input"
-                value={form.skills}
-                onChange={handleChange}
-                disabled={catalogsLoading}
-              >
-                <option value="">Seleccione</option>
-                {catalogs.experienceRanges.map((r) => (
-                  <option key={r.id} value={r.label}>
-                    {r.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div className="candidato-section">
-          <h3>Estudios</h3>
-
-          <div className="form-grid">
-            <div className="form-group">
-              <label htmlFor="status">Nivel de estudios</label>
-              <select
-                id="status"
-                name="status"
-                className="form-input"
-                value={form.status}
-                onChange={handleChange}
-                disabled={catalogsLoading}
-              >
-                <option value="">Seleccione</option>
-                {catalogs.educationLevels.map((e) => (
-                  <option key={e.id} value={e.name}>
-                    {e.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div className="candidato-section">
-          <h3>Habilidades técnicas</h3>
-          <div className="form-grid">
-            <div className="form-group form-group-full">
-              <textarea
-                name="technicalSkills"
-                className="form-input"
-                placeholder="Escribe habilidades técnicas"
-                value={form.technicalSkills ?? ""}
-                onChange={handleChange}
-                rows={3}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="candidato-section">
-          <h3>Habilidades blandas</h3>
-          <div className="form-grid">
-            <div className="form-group form-group-full">
-              <textarea
-                name="softSkills"
-                className="form-input"
-                placeholder="Escribe habilidades blandas"
-                value={form.softSkills ?? ""}
-                onChange={handleChange}
-                rows={3}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="candidato-section">
-          <h3>Idiomas</h3>
-          <div className="form-grid">
-            <div className="form-group">
-              <label htmlFor="idioma">Idioma</label>
-              <select
-                id="idioma"
-                name="language"
-                className="form-input"
-                value={form.language ?? ""}
-                onChange={handleChange}
-                disabled={catalogsLoading}
-              >
-                <option value="">Seleccione</option>
-                {catalogs.languages.map((l) => (
-                  <option key={l.id} value={l.name}>
-                    {l.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="nivelIdioma">Nivel</label>
-              <select
-                id="nivelIdioma"
-                name="languageLevel"
-                className="form-input"
-                value={form.languageLevel ?? ""}
-                onChange={handleChange}
-                disabled={catalogsLoading}
-              >
-                <option value="">Seleccione</option>
-                {catalogs.languageLevels.map((l) => (
-                  <option key={l.id} value={l.code}>
-                    {l.code.toUpperCase()} ({l.name})
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div className="candidato-section">
-          <h3>Subir documento</h3>
-          <div className="form-grid">
             <div className="form-group form-group-full">
               <label htmlFor="cvFile">CV (solo PDF)</label>
               <input
@@ -529,38 +378,376 @@ export default function CandidatoCreatePage() {
                 disabled={isParsingCv}
               />
               {isParsingCv && (
-                <small className="candidato-hint">
-                  Extrayendo información del CV…
+                <small className="candidato-hint wizard-loading">
+                  Analizando CV…
                 </small>
               )}
               {!!uploadedCvName && !isParsingCv && (
-                <small className="candidato-hint">
-                  Archivo cargado: {uploadedCvName}
+                <small className="candidato-hint wizard-success">
+                  CV cargado: {uploadedCvName}
+                </small>
+              )}
+              {!uploadedCvName && !isParsingCv && (
+                <small className="candidato-hint wizard-notice">
+                  Puedes continuar sin CV y llenar los datos manualmente.
                 </small>
               )}
             </div>
           </div>
-        </div>
+        )}
 
-        <div className="form-actions">
+        {step === 2 && (
+          <div className="candidato-section wizard-step-content">
+            <h3>Paso 2 — Datos personales</h3>
+
+            <div className="form-grid">
+              <div className="form-group">
+                <label htmlFor="firstName">
+                  Nombre <span className="required">*</span>
+                  {isFieldSuggested("firstName") && (
+                    <span className="cv-badge">sugerido del CV</span>
+                  )}
+                </label>
+                <input
+                  id="firstName"
+                  name="firstName"
+                  type="text"
+                  className={`form-input ${fieldErrors.firstName ? "input-error" : ""}`}
+                  placeholder="Nombre"
+                  value={form.firstName}
+                  onChange={handleChange}
+                />
+                {fieldErrors.firstName && (
+                  <small className="field-error">{fieldErrors.firstName}</small>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="lastName">
+                  Apellido <span className="required">*</span>
+                  {isFieldSuggested("lastName") && (
+                    <span className="cv-badge">sugerido del CV</span>
+                  )}
+                </label>
+                <input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  className={`form-input ${fieldErrors.lastName ? "input-error" : ""}`}
+                  placeholder="Apellido"
+                  value={form.lastName}
+                  onChange={handleChange}
+                />
+                {fieldErrors.lastName && (
+                  <small className="field-error">{fieldErrors.lastName}</small>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="email">
+                  Email <span className="required">*</span>
+                  {isFieldSuggested("email") && (
+                    <span className="cv-badge">sugerido del CV</span>
+                  )}
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  className={`form-input ${fieldErrors.email ? "input-error" : ""}`}
+                  placeholder="correo@dominio.com"
+                  value={form.email}
+                  onChange={handleChange}
+                />
+                {fieldErrors.email && (
+                  <small className="field-error">{fieldErrors.email}</small>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="experience">
+                  Documento de identificación
+                  {isFieldSuggested("experience") && (
+                    <span className="cv-badge">sugerido del CV</span>
+                  )}
+                </label>
+                <input
+                  id="experience"
+                  name="experience"
+                  type="text"
+                  className="form-input"
+                  placeholder="Documento"
+                  value={form.experience}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="notes">
+                  Código de país
+                  {isFieldSuggested("notes") && (
+                    <span className="cv-badge">sugerido del CV</span>
+                  )}
+                </label>
+                <select
+                  id="notes"
+                  name="notes"
+                  className="form-input"
+                  value={form.notes}
+                  onChange={handleChange}
+                  disabled={catalogsLoading}
+                >
+                  <option value="">Seleccione</option>
+                  {catalogs.countryCodes.map((c) => (
+                    <option key={c.id} value={c.phoneCode}>
+                      {c.phoneCode} ({c.isoCode})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="phone">
+                  Teléfono
+                  {isFieldSuggested("phone") && (
+                    <span className="cv-badge">sugerido del CV</span>
+                  )}
+                </label>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  className="form-input"
+                  placeholder="9 1234 5678"
+                  value={form.phone}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="candidato-section wizard-step-content">
+            <h3>Paso 3 — Perfil profesional</h3>
+
+            <div className="form-grid">
+              <div className="form-group">
+                <label htmlFor="education">
+                  Último cargo
+                  {isFieldSuggested("education") && (
+                    <span className="cv-badge">sugerido del CV</span>
+                  )}
+                </label>
+                <input
+                  id="education"
+                  name="education"
+                  type="text"
+                  className="form-input"
+                  placeholder="Último cargo"
+                  value={form.education}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="skills">
+                  Años de experiencia
+                  {isFieldSuggested("skills") && (
+                    <span className="cv-badge">sugerido del CV</span>
+                  )}
+                </label>
+                <select
+                  id="skills"
+                  name="skills"
+                  className="form-input"
+                  value={form.skills}
+                  onChange={handleChange}
+                  disabled={catalogsLoading}
+                >
+                  <option value="">Seleccione</option>
+                  {catalogs.experienceRanges.map((r) => (
+                    <option key={r.id} value={r.label}>
+                      {r.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="form-grid" style={{ marginTop: 14 }}>
+              <div className="form-group form-group-full">
+                <label htmlFor="status">
+                  Nivel de estudios
+                  {isFieldSuggested("status") && (
+                    <span className="cv-badge">sugerido del CV</span>
+                  )}
+                </label>
+                <select
+                  id="status"
+                  name="status"
+                  className="form-input"
+                  value={form.status}
+                  onChange={handleChange}
+                  disabled={catalogsLoading}
+                >
+                  <option value="">Seleccione</option>
+                  {catalogs.educationLevels.map((e) => (
+                    <option key={e.id} value={e.name}>
+                      {e.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="form-grid" style={{ marginTop: 14 }}>
+              <div className="form-group form-group-full">
+                <label htmlFor="technicalSkills">
+                  Habilidades técnicas
+                  {isFieldSuggested("technicalSkills") && (
+                    <span className="cv-badge">sugerido del CV</span>
+                  )}
+                </label>
+                <textarea
+                  id="technicalSkills"
+                  name="technicalSkills"
+                  className="form-input"
+                  placeholder="Escribe habilidades técnicas"
+                  value={form.technicalSkills ?? ""}
+                  onChange={handleChange}
+                  rows={3}
+                />
+              </div>
+            </div>
+
+            <div className="form-grid" style={{ marginTop: 14 }}>
+              <div className="form-group form-group-full">
+                <label htmlFor="softSkills">Habilidades blandas</label>
+                <textarea
+                  id="softSkills"
+                  name="softSkills"
+                  className="form-input"
+                  placeholder="Escribe habilidades blandas"
+                  value={form.softSkills ?? ""}
+                  onChange={handleChange}
+                  rows={3}
+                />
+              </div>
+            </div>
+
+            <div className="form-grid" style={{ marginTop: 14 }}>
+              <div className="form-group">
+                <label htmlFor="idioma">
+                  Idioma
+                  {isFieldSuggested("language") && (
+                    <span className="cv-badge">sugerido del CV</span>
+                  )}
+                </label>
+                <select
+                  id="idioma"
+                  name="language"
+                  className="form-input"
+                  value={form.language ?? ""}
+                  onChange={handleChange}
+                  disabled={catalogsLoading}
+                >
+                  <option value="">Seleccione</option>
+                  {catalogs.languages.map((l) => (
+                    <option key={l.id} value={l.name}>
+                      {l.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="nivelIdioma">
+                  Nivel
+                  {isFieldSuggested("languageLevel") && (
+                    <span className="cv-badge">sugerido del CV</span>
+                  )}
+                </label>
+                <select
+                  id="nivelIdioma"
+                  name="languageLevel"
+                  className="form-input"
+                  value={form.languageLevel ?? ""}
+                  onChange={handleChange}
+                  disabled={catalogsLoading}
+                >
+                  <option value="">Seleccione</option>
+                  {catalogs.languageLevels.map((l) => (
+                    <option key={l.id} value={l.code}>
+                      {l.code.toUpperCase()} ({l.name})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="wizard-actions">
           <button
             type="button"
             className="btn-secondary"
-            onClick={handleCancel}
+            onClick={handleCancelClick}
             disabled={loading}
           >
             Cancelar
           </button>
 
-          <button
-            type="submit"
-            className="btn-primary"
-            disabled={loading || catalogsLoading}
-          >
-            {loading ? "Creando…" : "Crear candidato"}
-          </button>
+          <div className="wizard-nav">
+            {step > 1 && (
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={goToPrevStep}
+                disabled={loading}
+              >
+                Anterior
+              </button>
+            )}
+
+            {step < 3 ? (
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={goToNextStep}
+                disabled={loading}
+              >
+                Siguiente
+              </button>
+            ) : (
+              <button
+                type="submit"
+                className="btn-primary"
+                disabled={loading || catalogsLoading}
+              >
+                {loading ? "Creando…" : "Crear candidato"}
+              </button>
+            )}
+          </div>
         </div>
       </form>
+
+      {showCancelModal && (
+        <div className="modal-overlay" onClick={dismissCancel}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>¿Descartar datos ingresados?</h3>
+            <p>Si sales ahora, los datos ingresados en este formulario se perderán.</p>
+            <div className="modal-actions">
+              <button type="button" className="btn-secondary" onClick={dismissCancel}>
+                Seguir editando
+              </button>
+              <button type="button" className="btn-danger" onClick={confirmCancel}>
+                Descartar y salir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
