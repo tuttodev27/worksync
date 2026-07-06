@@ -22,7 +22,7 @@ export interface CreateUserPayload {
   countryCode: string;
   phone: string;
   password: string;
-  role: string;
+  roleId: number;
 }
 
 export interface UpdateUserPayload {

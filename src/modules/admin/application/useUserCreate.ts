@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import type { CreateUserPayload } from "../domain/models/User";
+import type { Role } from "../domain/models/Role";
 import { userRepository } from "../infrastructure/UserApiRepository";
 import type { UserRepository } from "../domain/ports/UserRepository";
 
@@ -18,7 +19,7 @@ export interface UserCreateFormData {
   phone: string;
   password: string;
   rePassword: string;
-  role: string;
+  roleId: number;
 }
 
 const initialForm: UserCreateFormData = {
@@ -29,7 +30,7 @@ const initialForm: UserCreateFormData = {
   phone: "",
   password: "",
   rePassword: "",
-  role: "",
+  roleId: 0,
 };
 
 interface UseUserCreateReturn {
@@ -40,7 +41,7 @@ interface UseUserCreateReturn {
   handleSubmit: (e: FormEvent) => Promise<void>;
   handleCancel: () => void;
   setError: (error: string) => void;
-  availableRoles: string[];
+  availableRoles: Role[];
   loadingRoles: boolean;
   rolesError: string;
 }
@@ -53,7 +54,7 @@ export function useUserCreate(
   const [form, setForm] = useState<UserCreateFormData>(initialForm);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const [availableRoles, setAvailableRoles] = useState<string[]>([]);
+  const [availableRoles, setAvailableRoles] = useState<Role[]>([]);
   const [loadingRoles, setLoadingRoles] = useState<boolean>(true);
   const [rolesError, setRolesError] = useState<string>("");
 
@@ -103,7 +104,7 @@ export function useUserCreate(
         return;
       }
 
-      if (!form.role) {
+      if (!form.roleId) {
         setError("Selecciona un rol para el usuario.");
         return;
       }
@@ -115,7 +116,7 @@ export function useUserCreate(
         countryCode: form.countryCode,
         phone: form.phone,
         password: form.password,
-        role: form.role,
+        roleId: form.roleId,
       };
 
       setLoading(true);
