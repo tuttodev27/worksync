@@ -27,12 +27,12 @@ describe("UserApiRepository", () => {
   });
 
   describe("list", () => {
-    it("returns users array from paginated response", async () => {
+    it("returns paginated response with users", async () => {
       const users = [
         { id: 1, name: "Alice", email: "alice@test.com", active: true },
         { id: 2, name: "Bob", email: "bob@test.com", active: false },
       ];
-      mockHttpRequest.mockResolvedValue({
+      const pageResponse = {
         content: users,
         totalElements: 2,
         totalPages: 1,
@@ -41,22 +41,24 @@ describe("UserApiRepository", () => {
         first: true,
         last: true,
         empty: false,
-      });
+      };
+      mockHttpRequest.mockResolvedValue(pageResponse);
 
       const result = await repo.list();
-      expect(result).toEqual(users);
+      expect(result).toEqual(pageResponse);
       expect(mockHttpRequest).toHaveBeenCalledWith("/api/users", {
         baseUrl: "http://localhost:8083", authScope: "users",
       });
     });
 
-    it("passes active filter as query param", async () => {
+    it("passes active filter and pagination params as query params", async () => {
       mockHttpRequest.mockResolvedValue({ content: [], totalElements: 0, totalPages: 0, number: 0, size: 10, first: true, last: true, empty: true });
 
-      await repo.list(true);
-      expect(mockHttpRequest).toHaveBeenCalledWith("/api/users?active=true", {
-        baseUrl: "http://localhost:8083", authScope: "users",
-      });
+      await repo.list(true, 2, 5);
+      expect(mockHttpRequest).toHaveBeenCalledWith(
+        "/api/users?active=true&page=2&size=5",
+        { baseUrl: "http://localhost:8083", authScope: "users" },
+      );
     });
 
     it("maps 404 HttpError to UserError message", async () => {
