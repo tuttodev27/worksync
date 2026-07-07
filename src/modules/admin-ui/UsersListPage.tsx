@@ -13,7 +13,7 @@ const STATUS_OPTIONS: Array<{ value: "" | "true" | "false"; label: string }> = [
 ];
 
 export default function UsersListPage() {
-  const { users, loading, error, activeFilter, setActiveFilter, refresh } =
+  const { users, loading, error, activeFilter, setActiveFilter, refresh, page, totalPages, setPage } =
     useUserList();
   const { deleteUser } = useUserDelete();
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -162,6 +162,32 @@ export default function UsersListPage() {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="users-pagination">
+          <button
+            type="button"
+            className="users-pagination-btn"
+            disabled={page === 0 || loading}
+            onClick={() => setPage(page - 1)}
+          >
+            ← Anterior
+          </button>
+
+          <span className="users-pagination-info">
+            Página {page + 1} de {totalPages}
+          </span>
+
+          <button
+            type="button"
+            className="users-pagination-btn"
+            disabled={page >= totalPages - 1 || loading}
+            onClick={() => setPage(page + 1)}
+          >
+            Siguiente →
+          </button>
+        </div>
+      )}
 
       <ConfirmModal
         open={confirmId !== null}

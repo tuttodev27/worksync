@@ -14,11 +14,6 @@ import type {
 import type { Role } from "../domain/models/Role";
 import type { PageResponse } from "../../../shared/types/api";
 
-function buildQuery(active?: boolean): string {
-  if (active === undefined) return "";
-  return `?active=${active}`;
-}
-
 function mapError(err: unknown): Error {
   if (err instanceof HttpError) {
     if (err.status === 401) return new Error("No autorizado");
@@ -37,12 +32,17 @@ export class UserApiRepository implements UserRepository {
     this.baseUrl = baseUrl;
   }
 
-  async list(active?: boolean): Promise<User[]> {
+  async list(active?: boolean, page?: number, size?: number): Promise<PageResponse<User>> {
+    const search = new URLSearchParams();
+    if (active !== undefined) search.set("active", String(active));
+    if (page !== undefined) search.set("page", String(page));
+    if (size !== undefined) search.set("size", String(size));
+    const query = search.toString();
     try {
-      const response = await httpRequest<PageResponse<User>>(`/api/users${buildQuery(active)}`, {
-        baseUrl: this.baseUrl, authScope: "users",
-      });
-      return response.content;
+      return await httpRequest<PageResponse<User>>(
+        `/api/users${query ? `?${query}` : ""}`,
+        { baseUrl: this.baseUrl, authScope: "users" },
+      );
     } catch (err) {
       throw mapError(err);
     }

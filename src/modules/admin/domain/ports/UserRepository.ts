@@ -9,9 +9,10 @@ import type {
   UpdateUserPayload,
 } from "../models/User";
 import type { Role } from "../models/Role";
+import type { PageResponse } from "../../../../shared/types/api";
 
 export interface UserRepository {
-  list(active?: boolean): Promise<User[]>;
+  list(active?: boolean, page?: number, size?: number): Promise<PageResponse<User>>;
   getById(id: number): Promise<User>;
   create(payload: CreateUserPayload): Promise<User>;
   update(id: number, payload: UpdateUserPayload): Promise<User>;
