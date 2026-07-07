@@ -1,32 +1,32 @@
 /**
- * Hook para eliminar (borrado lógico) un usuario
+ * Hook para desactivar (borrado lógico) un usuario
  */
 
 import { useCallback, useState } from "react";
 import { userRepository } from "../infrastructure/UserApiRepository";
 import type { UserRepository } from "../domain/ports/UserRepository";
 
-interface UseUserDeleteReturn {
-  deleteUser: (id: number) => Promise<void>;
+interface UseUserDeactivateReturn {
+  deactivateUser: (id: number) => Promise<void>;
   loading: boolean;
   error: string;
 }
 
-export function useUserDelete(
+export function useUserDeactivate(
   repository: UserRepository = userRepository
-): UseUserDeleteReturn {
+): UseUserDeactivateReturn {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
-  const deleteUser = useCallback(
+  const deactivateUser = useCallback(
     async (id: number) => {
       setLoading(true);
       setError("");
       try {
-        await repository.delete(id);
+        await repository.deactivate(id);
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : "No se pudo eliminar el usuario"
+          err instanceof Error ? err.message : "No se pudo desactivar el usuario"
         );
         throw err;
       } finally {
@@ -36,5 +36,5 @@ export function useUserDelete(
     [repository]
   );
 
-  return { deleteUser, loading, error };
+  return { deactivateUser, loading, error };
 }

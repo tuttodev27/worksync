@@ -82,10 +82,11 @@ export class UserApiRepository implements UserRepository {
     }
   }
 
-  async delete(id: number): Promise<void> {
+  async deactivate(id: number): Promise<User> {
     try {
-      await httpRequest<void>(`/api/users/${id}`, {
-        method: "DELETE",
+      return await httpRequest<User>(`/api/users/${id}`, {
+        method: "PATCH",
+        body: { active: false },
         baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {

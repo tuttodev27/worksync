@@ -128,13 +128,16 @@ describe("UserApiRepository", () => {
     });
   });
 
-  describe("delete", () => {
-    it("sends DELETE request", async () => {
-      mockHttpRequest.mockResolvedValue(undefined);
+  describe("deactivate", () => {
+    it("sends PATCH with active: false and returns updated user", async () => {
+      const updatedUser = { id: 5, name: "Test", active: false };
+      mockHttpRequest.mockResolvedValue(updatedUser);
 
-      await repo.delete(5);
+      const result = await repo.deactivate(5);
+      expect(result).toEqual(updatedUser);
       expect(mockHttpRequest).toHaveBeenCalledWith("/api/users/5", {
-        method: "DELETE",
+        method: "PATCH",
+        body: { active: false },
         baseUrl: "http://localhost:8083", authScope: "users",
       });
     });
