@@ -61,7 +61,7 @@ describe("CandidateApiRepository", () => {
       expect(mockHttpRequest).toHaveBeenCalledWith("/api/candidates", {
         method: "POST",
         body: payload,
-        baseUrl: "http://localhost:8084",
+        baseUrl: "http://localhost:8084", authScope: "candidates",
       });
     });
   });
@@ -74,7 +74,7 @@ describe("CandidateApiRepository", () => {
       expect(result).toEqual(mockPageResponse);
       expect(mockHttpRequest).toHaveBeenCalledWith(
         "/api/candidates?page=0&size=10",
-        { method: "GET", baseUrl: "http://localhost:8084" },
+        { method: "GET", baseUrl: "http://localhost:8084", authScope: "candidates" },
       );
     });
 
@@ -84,7 +84,7 @@ describe("CandidateApiRepository", () => {
       await repo.list({ search: "john" });
       expect(mockHttpRequest).toHaveBeenCalledWith(
         "/api/candidates?search=john",
-        { method: "GET", baseUrl: "http://localhost:8084" },
+        { method: "GET", baseUrl: "http://localhost:8084", authScope: "candidates" },
       );
     });
   });
@@ -97,7 +97,7 @@ describe("CandidateApiRepository", () => {
       expect(result).toEqual(mockCandidate);
       expect(mockHttpRequest).toHaveBeenCalledWith("/api/candidates/1", {
         method: "GET",
-        baseUrl: "http://localhost:8084",
+        baseUrl: "http://localhost:8084", authScope: "candidates",
       });
     });
   });
@@ -112,7 +112,7 @@ describe("CandidateApiRepository", () => {
       expect(mockHttpRequest).toHaveBeenCalledWith("/api/candidates/1", {
         method: "PUT",
         body: payload,
-        baseUrl: "http://localhost:8084",
+        baseUrl: "http://localhost:8084", authScope: "candidates",
       });
     });
   });
@@ -130,7 +130,7 @@ describe("CandidateApiRepository", () => {
         expect.objectContaining({
           method: "POST",
           headers: {},
-          baseUrl: "http://localhost:8084",
+          baseUrl: "http://localhost:8084", authScope: "candidates",
         }),
       );
       const callBody = mockHttpRequest.mock.calls[0][1]?.body;
@@ -158,7 +158,7 @@ describe("CandidateApiRepository", () => {
       expect(result).toEqual(mockCandidate);
       expect(mockHttpRequest).toHaveBeenCalledWith(
         "/api/candidates/1/attachments/5/parse",
-        { method: "POST", baseUrl: "http://localhost:8084" },
+        { method: "POST", baseUrl: "http://localhost:8084", authScope: "candidates" },
       );
     });
   });
@@ -177,7 +177,7 @@ describe("CandidateApiRepository", () => {
         {
           method: "PATCH",
           body: { status: "IN_REVIEW" },
-          baseUrl: "http://localhost:8084",
+          baseUrl: "http://localhost:8084", authScope: "candidates",
         },
       );
     });

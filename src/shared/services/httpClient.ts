@@ -20,6 +20,7 @@ type RequestOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
   auth?: boolean;
   baseUrl?: string;
+  authScope?: "users" | "candidates";
 };
 
 const TOKEN_STORAGE_KEY = "token";
@@ -53,7 +54,7 @@ export async function httpRequest<T = unknown>(
   path: string,
   options: RequestOptions = {},
 ): Promise<T> {
-  const { body, auth = true, headers, baseUrl, ...rest } = options;
+  const { body, auth = true, headers, baseUrl, authScope, ...rest } = options;
 
   const finalHeaders = new Headers(headers);
   if (body !== undefined && !(body instanceof FormData)) {
@@ -79,20 +80,19 @@ export async function httpRequest<T = unknown>(
   });
 
   if (response.status === 401 && auth) {
-  const isAuthService = (baseUrl ?? "").includes("8083");
-  if (isAuthService) {
-    clearStoredSession();
-    if (
-      typeof window !== "undefined" &&
-      !window.location.pathname.startsWith("/login")
-    ) {
-      window.location.href = "/login";
+    if (authScope === "users") {
+      clearStoredSession();
+      if (
+        typeof window !== "undefined" &&
+        !window.location.pathname.startsWith("/login")
+      ) {
+        window.location.href = "/login";
+      }
+    } else {
+      const message = await parseErrorBody(response);
+      throw new HttpError(response.status, message);
     }
-  } else {
-    const message = await parseErrorBody(response);
-    throw new HttpError(response.status, message);
   }
-}
 
   if (!response.ok) {
     const message = await parseErrorBody(response);

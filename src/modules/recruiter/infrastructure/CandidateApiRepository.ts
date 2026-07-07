@@ -52,7 +52,7 @@ export class CandidateApiRepository {
       return await httpRequest<CandidateApiResponse>("/api/candidates", {
         method: "POST",
         body: payload,
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "candidates",
       });
     } catch (err) {
       toApiError(err);
@@ -84,7 +84,7 @@ export class CandidateApiRepository {
     try {
       return await httpRequest<PageResponse<CandidateApiResponse>>(
         `/api/candidates${query ? `?${query}` : ""}`,
-        { method: "GET", baseUrl: this.baseUrl },
+        { method: "GET", baseUrl: this.baseUrl, authScope: "candidates" },
       );
     } catch (err) {
       toApiError(err);
@@ -95,7 +95,7 @@ export class CandidateApiRepository {
     try {
       return await httpRequest<CandidateApiResponse>(`/api/candidates/${id}`, {
         method: "GET",
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "candidates",
       });
     } catch (err) {
       toApiError(err);
@@ -110,7 +110,7 @@ export class CandidateApiRepository {
       return await httpRequest<CandidateApiResponse>(`/api/candidates/${id}`, {
         method: "PUT",
         body: payload,
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "candidates",
       });
     } catch (err) {
       toApiError(err);
@@ -129,7 +129,7 @@ export class CandidateApiRepository {
         {
           method: "POST",
           body: formData,
-          baseUrl: this.baseUrl,
+          baseUrl: this.baseUrl, authScope: "candidates",
           headers: {},
         },
       );
@@ -144,7 +144,7 @@ export class CandidateApiRepository {
     try {
       return await httpRequest<AttachmentResponse[]>(
         `/api/candidates/${candidateId}/attachments`,
-        { method: "GET", baseUrl: this.baseUrl },
+        { method: "GET", baseUrl: this.baseUrl, authScope: "candidates" },
       );
     } catch (err) {
       toApiError(err);
@@ -158,7 +158,7 @@ export class CandidateApiRepository {
     try {
       return await httpRequest<CandidateApiResponse>(
         `/api/candidates/${candidateId}/attachments/${attachmentId}/parse`,
-        { method: "POST", baseUrl: this.baseUrl },
+        { method: "POST", baseUrl: this.baseUrl, authScope: "candidates" },
       );
     } catch (err) {
       toApiError(err);
@@ -172,7 +172,7 @@ export class CandidateApiRepository {
     try {
       return await httpRequest<CandidateApiResponse>(
         `/api/candidates/${id}/status`,
-        { method: "PATCH", body: payload, baseUrl: this.baseUrl },
+        { method: "PATCH", body: payload, baseUrl: this.baseUrl, authScope: "candidates" },
       );
     } catch (err) {
       toApiError(err);
@@ -185,7 +185,7 @@ export class CandidateApiRepository {
     try {
       return await httpRequest<StatusHistoryResponse[]>(
         `/api/candidates/${candidateId}/status-history`,
-        { method: "GET", baseUrl: this.baseUrl },
+        { method: "GET", baseUrl: this.baseUrl, authScope: "candidates" },
       );
     } catch (err) {
       toApiError(err);

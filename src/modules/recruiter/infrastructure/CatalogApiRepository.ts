@@ -16,7 +16,7 @@ import type {
 
 async function safeGet<T>(path: string, fallback: T, baseUrl: string): Promise<T> {
   try {
-    const data = await httpRequest<T>(path, { method: "GET", baseUrl });
+    const data = await httpRequest<T>(path, { method: "GET", baseUrl, authScope: "candidates" });
     return data ?? fallback;
   } catch {
     return fallback;

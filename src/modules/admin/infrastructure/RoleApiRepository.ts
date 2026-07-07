@@ -34,7 +34,7 @@ export class RoleApiRepository implements RoleRepository {
   async list(active?: boolean): Promise<Role[]> {
     try {
       const response = await httpRequest<PageResponse<Role>>(`/api/roles${buildQuery(active)}`, {
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
       return response.content;
     } catch (err) {
@@ -45,7 +45,7 @@ export class RoleApiRepository implements RoleRepository {
   async getById(id: number): Promise<Role> {
     try {
       return await httpRequest<Role>(`/api/roles/${id}`, {
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {
       throw mapError(err);
@@ -57,7 +57,7 @@ export class RoleApiRepository implements RoleRepository {
       return await httpRequest<Role>("/api/roles", {
         method: "POST",
         body: payload,
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {
       throw mapError(err);
@@ -69,7 +69,7 @@ export class RoleApiRepository implements RoleRepository {
       return await httpRequest<Role>(`/api/roles/${id}`, {
         method: "PUT",
         body: payload,
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {
       throw mapError(err);
@@ -80,7 +80,7 @@ export class RoleApiRepository implements RoleRepository {
     try {
       await httpRequest<void>(`/api/roles/${id}`, {
         method: "DELETE",
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {
       throw mapError(err);

@@ -40,7 +40,7 @@ export class UserApiRepository implements UserRepository {
   async list(active?: boolean): Promise<User[]> {
     try {
       const response = await httpRequest<PageResponse<User>>(`/api/users${buildQuery(active)}`, {
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
       return response.content;
     } catch (err) {
@@ -51,7 +51,7 @@ export class UserApiRepository implements UserRepository {
   async getById(id: number): Promise<User> {
     try {
       return await httpRequest<User>(`/api/users/${id}`, {
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {
       throw mapError(err);
@@ -63,7 +63,7 @@ export class UserApiRepository implements UserRepository {
       return await httpRequest<User>("/api/users", {
         method: "POST",
         body: payload,
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {
       throw mapError(err);
@@ -75,7 +75,7 @@ export class UserApiRepository implements UserRepository {
       return await httpRequest<User>(`/api/users/${id}`, {
         method: "PUT",
         body: payload,
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {
       throw mapError(err);
@@ -86,7 +86,7 @@ export class UserApiRepository implements UserRepository {
     try {
       await httpRequest<void>(`/api/users/${id}`, {
         method: "DELETE",
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {
       throw mapError(err);
@@ -96,7 +96,7 @@ export class UserApiRepository implements UserRepository {
   async listAvailableRoles(): Promise<Role[]> {
     try {
       const response = await httpRequest<Role[] | PageResponse<Role>>("/api/users/roles", {
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
       return Array.isArray(response) ? response : response.content;
     } catch (err) {

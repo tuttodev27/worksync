@@ -32,7 +32,7 @@ export class PermissionApiRepository implements PermissionRepository {
   async list(active?: boolean): Promise<Permission[]> {
     try {
       return await httpRequest<Permission[]>(`/api/permissions${buildQuery(active)}`, {
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {
       throw mapError(err);
@@ -42,7 +42,7 @@ export class PermissionApiRepository implements PermissionRepository {
   async getById(id: number): Promise<Permission> {
     try {
       return await httpRequest<Permission>(`/api/permissions/${id}`, {
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {
       throw mapError(err);
@@ -54,7 +54,7 @@ export class PermissionApiRepository implements PermissionRepository {
       return await httpRequest<Permission>("/api/permissions", {
         method: "POST",
         body: payload,
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {
       throw mapError(err);
@@ -66,7 +66,7 @@ export class PermissionApiRepository implements PermissionRepository {
       return await httpRequest<Permission>(`/api/permissions/${id}`, {
         method: "PUT",
         body: payload,
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {
       throw mapError(err);
@@ -77,7 +77,7 @@ export class PermissionApiRepository implements PermissionRepository {
     try {
       await httpRequest<void>(`/api/permissions/${id}`, {
         method: "DELETE",
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {
       throw mapError(err);
