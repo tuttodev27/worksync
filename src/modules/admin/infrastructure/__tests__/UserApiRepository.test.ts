@@ -46,7 +46,7 @@ describe("UserApiRepository", () => {
       const result = await repo.list();
       expect(result).toEqual(users);
       expect(mockHttpRequest).toHaveBeenCalledWith("/api/users", {
-        baseUrl: "http://localhost:8083",
+        baseUrl: "http://localhost:8083", authScope: "users",
       });
     });
 
@@ -55,7 +55,7 @@ describe("UserApiRepository", () => {
 
       await repo.list(true);
       expect(mockHttpRequest).toHaveBeenCalledWith("/api/users?active=true", {
-        baseUrl: "http://localhost:8083",
+        baseUrl: "http://localhost:8083", authScope: "users",
       });
     });
 
@@ -75,7 +75,7 @@ describe("UserApiRepository", () => {
       const result = await repo.getById(1);
       expect(result).toEqual(user);
       expect(mockHttpRequest).toHaveBeenCalledWith("/api/users/1", {
-        baseUrl: "http://localhost:8083",
+        baseUrl: "http://localhost:8083", authScope: "users",
       });
     });
   });
@@ -99,7 +99,7 @@ describe("UserApiRepository", () => {
       expect(mockHttpRequest).toHaveBeenCalledWith("/api/users", {
         method: "POST",
         body: payload,
-        baseUrl: "http://localhost:8083",
+        baseUrl: "http://localhost:8083", authScope: "users",
       });
     });
   });
@@ -121,7 +121,7 @@ describe("UserApiRepository", () => {
       expect(mockHttpRequest).toHaveBeenCalledWith("/api/users/1", {
         method: "PUT",
         body: payload,
-        baseUrl: "http://localhost:8083",
+        baseUrl: "http://localhost:8083", authScope: "users",
       });
     });
   });
@@ -133,7 +133,7 @@ describe("UserApiRepository", () => {
       await repo.delete(5);
       expect(mockHttpRequest).toHaveBeenCalledWith("/api/users/5", {
         method: "DELETE",
-        baseUrl: "http://localhost:8083",
+        baseUrl: "http://localhost:8083", authScope: "users",
       });
     });
   });

@@ -184,13 +184,13 @@ describe("httpRequest", () => {
     );
 
     await expect(
-      httpRequest("/api/users", { baseUrl: "http://localhost:8083" }),
+      httpRequest("/api/users", { baseUrl: "http://localhost:8083", authScope: "users" }),
     ).rejects.toThrow(HttpError);
     expect(window.localStorage.getItem("token")).toBeNull();
     expect(window.localStorage.getItem("authUser")).toBeNull();
   });
 
-  it("throws HttpError for 401 on non-users service", async () => {
+  it("throws HttpError for 401 on candidates service", async () => {
     window.localStorage.setItem("token", "expired");
     vi.mocked(fetch).mockImplementation(
       vi.fn().mockResolvedValue({
@@ -203,7 +203,7 @@ describe("httpRequest", () => {
     );
 
     await expect(
-      httpRequest("/api/candidates", { baseUrl: "http://localhost:8084" }),
+      httpRequest("/api/candidates", { baseUrl: "http://localhost:8084", authScope: "candidates" }),
     ).rejects.toThrow(HttpError);
   });
 

@@ -41,11 +41,11 @@ function safeCount<T>(items: T[] | undefined): { total: number; active: number }
 
 export class DashboardApiRepository {
   async fetchSnapshot(): Promise<DashboardSnapshot> {
-    const usersPromise = httpRequest<PageResponse<User>>("/api/users", { baseUrl: API_USERS_URL }).then(r => r.content);
-    const rolesPromise = httpRequest<PageResponse<RoleLite>>("/api/roles", { baseUrl: API_USERS_URL }).then(r => r.content);
-    const permsPromise = httpRequest<PermissionLite[]>("/api/permissions", { baseUrl: API_USERS_URL });
-    const modulesPromise = httpRequest<ModuleLite[]>("/api/modules", { baseUrl: API_USERS_URL });
-    const menusPromise = httpRequest<MenuLite[]>("/api/menus", { baseUrl: API_USERS_URL });
+    const usersPromise = httpRequest<PageResponse<User>>("/api/users", { baseUrl: API_USERS_URL, authScope: "users" }).then(r => r.content);
+    const rolesPromise = httpRequest<PageResponse<RoleLite>>("/api/roles", { baseUrl: API_USERS_URL, authScope: "users" }).then(r => r.content);
+    const permsPromise = httpRequest<PermissionLite[]>("/api/permissions", { baseUrl: API_USERS_URL, authScope: "users" });
+    const modulesPromise = httpRequest<ModuleLite[]>("/api/modules", { baseUrl: API_USERS_URL, authScope: "users" });
+    const menusPromise = httpRequest<MenuLite[]>("/api/menus", { baseUrl: API_USERS_URL, authScope: "users" });
 
     const results = await Promise.allSettled([
       usersPromise,

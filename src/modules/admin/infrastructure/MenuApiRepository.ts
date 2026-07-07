@@ -32,7 +32,7 @@ export class MenuApiRepository implements MenuRepository {
   async list(active?: boolean): Promise<Menu[]> {
     try {
       return await httpRequest<Menu[]>(`/api/menus${buildQuery(active)}`, {
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {
       throw mapError(err);
@@ -42,7 +42,7 @@ export class MenuApiRepository implements MenuRepository {
   async getById(id: number): Promise<Menu> {
     try {
       return await httpRequest<Menu>(`/api/menus/${id}`, {
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {
       throw mapError(err);
@@ -54,7 +54,7 @@ export class MenuApiRepository implements MenuRepository {
       return await httpRequest<Menu>("/api/menus", {
         method: "POST",
         body: payload,
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {
       throw mapError(err);
@@ -66,7 +66,7 @@ export class MenuApiRepository implements MenuRepository {
       return await httpRequest<Menu>(`/api/menus/${id}`, {
         method: "PUT",
         body: payload,
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {
       throw mapError(err);
@@ -77,7 +77,7 @@ export class MenuApiRepository implements MenuRepository {
     try {
       await httpRequest<void>(`/api/menus/${id}`, {
         method: "DELETE",
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {
       throw mapError(err);

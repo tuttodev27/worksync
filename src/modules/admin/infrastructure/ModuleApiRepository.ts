@@ -32,7 +32,7 @@ export class ModuleApiRepository implements ModuleRepository {
   async list(active?: boolean): Promise<Module[]> {
     try {
       return await httpRequest<Module[]>(`/api/modules${buildQuery(active)}`, {
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {
       throw mapError(err);
@@ -42,7 +42,7 @@ export class ModuleApiRepository implements ModuleRepository {
   async getById(id: number): Promise<Module> {
     try {
       return await httpRequest<Module>(`/api/modules/${id}`, {
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {
       throw mapError(err);
@@ -54,7 +54,7 @@ export class ModuleApiRepository implements ModuleRepository {
       return await httpRequest<Module>("/api/modules", {
         method: "POST",
         body: payload,
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {
       throw mapError(err);
@@ -66,7 +66,7 @@ export class ModuleApiRepository implements ModuleRepository {
       return await httpRequest<Module>(`/api/modules/${id}`, {
         method: "PUT",
         body: payload,
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {
       throw mapError(err);
@@ -77,7 +77,7 @@ export class ModuleApiRepository implements ModuleRepository {
     try {
       await httpRequest<void>(`/api/modules/${id}`, {
         method: "DELETE",
-        baseUrl: this.baseUrl,
+        baseUrl: this.baseUrl, authScope: "users",
       });
     } catch (err) {
       throw mapError(err);
