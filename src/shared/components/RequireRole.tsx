@@ -1,6 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { useAuthUser } from "../hooks/useAuthUser";
 import type { UserRole } from "../types/auth.type";
+import { logger } from "../utils/logger";
 
 interface RequireRoleProps {
   allowedRoles: UserRole[];
@@ -13,19 +14,14 @@ export default function RequireRole({
 }: RequireRoleProps) {
   const { user, isAuthenticated, isLoading } = useAuthUser();
 
-  console.log("RequireRole →", {
-    user,
-    isAuthenticated,
-    isLoading,
-    allowedRoles,
-  });
+  logger.debug("RequireRole →", { user, isAuthenticated, isLoading, allowedRoles });
 
   if (isLoading) return null;
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
   const role = user!.role;
-  console.log("role →", role, "allowedRoles →", allowedRoles);
+  logger.debug("role →", role, "allowedRoles →", allowedRoles);
 
   if (!allowedRoles.includes(role)) {
     const dashboard =
