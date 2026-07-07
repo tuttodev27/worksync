@@ -4,6 +4,7 @@
  */
 
 import { useState, useCallback, type ChangeEvent, type FormEvent } from "react";
+import { logger } from "../utils/logger";
 
 export interface ValidationRule<T> {
   field: keyof T;
@@ -80,7 +81,7 @@ export function useForm<T>({ initialValues, validationRules = [], onSubmit }: Us
         await onSubmit(form);
       } catch (err) {
         // Manejar error según necesidad
-        console.error("Form error:", err);
+        logger.error("Form error:", err);
       } finally {
         setLoading(false);
       }

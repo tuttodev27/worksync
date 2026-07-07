@@ -1,5 +1,6 @@
 import { useState, FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { logger } from "../../../../shared/utils/logger";
 import "./LoginPage.css";
 import "./ResetPasswordPage.css";
 
@@ -43,7 +44,7 @@ export default function ResetPasswordPage() {
       // TODO: reemplazar con tuendpoint real
       await new Promise((r) => setTimeout(r, 800));
 
-      console.log("Nueva contraseña:", form.password);
+      logger.debug("Contraseña restablecida para el usuario");
 
       // Limpiar sesión temporal
       sessionStorage.removeItem("reset_email");

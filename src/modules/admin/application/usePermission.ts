@@ -7,6 +7,7 @@ import { useState, useCallback, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import type { PermissionFormData, ModuleOption } from "../../../shared/types/forms";
 import { MODULE_OPTIONS, STATUS_OPTIONS } from "../../../shared/constants/forms";
+import { logger } from "../../../shared/utils/logger";
 
 interface UsePermissionReturn {
   form: PermissionFormData;
@@ -78,7 +79,7 @@ export function usePermission(): UsePermissionReturn {
       try {
         // TODO: conectar con backend cuando esté disponible
         await new Promise((r) => setTimeout(r, 500));
-        console.log("Crear permiso:", form);
+        logger.debug("Crear permiso:", form);
         navigate("/admin/permissions");
       } catch (err) {
         setError(
