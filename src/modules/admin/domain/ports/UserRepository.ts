@@ -16,7 +16,7 @@ export interface UserRepository {
   getById(id: number): Promise<User>;
   create(payload: CreateUserPayload): Promise<User>;
   update(id: number, payload: UpdateUserPayload): Promise<User>;
-  delete(id: number): Promise<void>;
+  deactivate(id: number): Promise<User>;
   listAvailableRoles(): Promise<Role[]>;
 }
 

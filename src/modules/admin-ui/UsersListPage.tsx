@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useUserList } from "../../modules/admin/application/useUserList";
-import { useUserDelete } from "../../modules/admin/application/useUserDelete";
+import { useUserDeactivate } from "../../modules/admin/application/useUserDeactivate";
 import ConfirmModal from "../shared/ui/components/ConfirmModal";
 import "./AdminPages.css";
 import "./UsersListPage.css";
@@ -15,8 +15,8 @@ const STATUS_OPTIONS: Array<{ value: "" | "true" | "false"; label: string }> = [
 export default function UsersListPage() {
   const { users, loading, error, activeFilter, setActiveFilter, refresh, page, totalPages, setPage } =
     useUserList();
-  const { deleteUser } = useUserDelete();
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const { deactivateUser } = useUserDeactivate();
+  const [deactivatingId, setDeactivatingId] = useState<number | null>(null);
   const [confirmId, setConfirmId] = useState<number | null>(null);
 
   const confirmUser = users.find((u) => u.id === confirmId);
@@ -32,15 +32,15 @@ export default function UsersListPage() {
     }
   };
 
-  const handleDelete = async () => {
+  const handleDeactivate = async () => {
     if (confirmId === null) return;
-    setDeletingId(confirmId);
+    setDeactivatingId(confirmId);
     setConfirmId(null);
     try {
-      await deleteUser(confirmId);
+      await deactivateUser(confirmId);
       await refresh();
     } finally {
-      setDeletingId(null);
+      setDeactivatingId(null);
     }
   };
 
@@ -151,9 +151,9 @@ export default function UsersListPage() {
                       type="button"
                       className="users-deactivate-btn"
                       onClick={() => setConfirmId(user.id)}
-                      disabled={deletingId === user.id}
+                      disabled={deactivatingId === user.id}
                     >
-                      {deletingId === user.id ? "Desactivando…" : "Desactivar"}
+                      {deactivatingId === user.id ? "Desactivando…" : "Desactivar"}
                     </button>
                   </td>
                 </tr>
@@ -200,8 +200,8 @@ export default function UsersListPage() {
         confirmLabel="Desactivar"
         cancelLabel="Cancelar"
         variant="danger"
-        loading={deletingId === confirmId}
-        onConfirm={handleDelete}
+        loading={deactivatingId === confirmId}
+        onConfirm={handleDeactivate}
         onCancel={() => setConfirmId(null)}
       />
     </div>
