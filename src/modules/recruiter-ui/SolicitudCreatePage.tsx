@@ -3,11 +3,13 @@
  * Formulario de oferta + matcher live de candidatos + gestion de asignados.
  */
 
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useSolicitud } from "../recruiter/application/useSolicitud";
-import { useCandidateList } from "../recruiter/application/useCandidateList";
 import { useCandidateMatcher } from "../recruiter/application/useCandidateMatcher";
+import { candidateRepository } from "../recruiter/infrastructure/CandidateApiRepository";
 import { SOLICITUD_STATUS } from "../../shared/constants/forms";
+import type { Candidate } from "../../shared/types/forms";
 import "./SolicitudCreatePage.css";
 
 function scoreLabel(score: number): string {
@@ -24,9 +26,38 @@ function scoreClass(score: number): string {
   return "match-pill match-pill--low";
 }
 
+function toLegacyCandidate(api: { id: number; firstName: string; lastName: string; email: string; phone?: string }): Candidate {
+  return {
+    id: String(api.id),
+    firstName: api.firstName,
+    lastName: api.lastName,
+    email: api.email,
+    phone: api.phone ?? "",
+    linkedin: "",
+    experience: "",
+    education: "",
+    skills: "",
+    status: "",
+    notes: "",
+    technicalSkills: "",
+    softSkills: "",
+    language: "",
+    languageLevel: "",
+    createdAt: "",
+  };
+}
+
 export default function SolicitudCreatePage() {
   const { id } = useParams<{ id: string }>();
-  const { candidates } = useCandidateList();
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+
+  useEffect(() => {
+    candidateRepository.list({ size: 100 }).then((page) => {
+      setCandidates(page.content.map(toLegacyCandidate));
+    }).catch(() => {
+      setCandidates([]);
+    });
+  }, []);
   const {
     form,
     error,

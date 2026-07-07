@@ -11,7 +11,7 @@ import type {
   Candidate,
   SolicitudStatus,
 } from "../../../shared/types/forms";
-import { STORAGE_KEYS } from "../../../shared/constants/forms";
+import { solicitudRepository } from "../infrastructure/SolicitudApiRepository";
 
 export interface UseSolicitudOptions {
   solicitudId?: string;
@@ -45,21 +45,6 @@ const emptyForm: SolicitudFormData = {
   status: "ABIERTA",
 };
 
-function readSolicitudes(): Solicitud[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.solicitudes);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as Solicitud[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function writeSolicitudes(list: Solicitud[]): void {
-  localStorage.setItem(STORAGE_KEYS.solicitudes, JSON.stringify(list));
-}
-
 export function useSolicitud(
   options: UseSolicitudOptions = { candidates: [] },
 ): UseSolicitudReturn {
@@ -76,21 +61,23 @@ export function useSolicitud(
 
   useEffect(() => {
     if (!solicitudId) return;
-    const list = readSolicitudes();
-    const found = list.find((s) => s.id === solicitudId);
-    if (!found) {
+    setLoading(true);
+    solicitudRepository.getById(Number(solicitudId)).then((found) => {
+      setForm({
+        title: found.title,
+        description: found.description,
+        requiredTechnicalSkills: found.requiredTechnicalSkills,
+        requiredExperience: found.requiredExperience,
+        status: found.status as SolicitudStatus,
+      });
+      const ids = found.assignedCandidateIds.map(String);
+      setAssignedIds(ids);
+      setInitialAssignedCount(ids.length);
+    }).catch(() => {
       setError("No se encontro la solicitud.");
-      return;
-    }
-    setForm({
-      title: found.title,
-      description: found.description,
-      requiredTechnicalSkills: found.requiredTechnicalSkills,
-      requiredExperience: found.requiredExperience,
-      status: found.status,
+    }).finally(() => {
+      setLoading(false);
     });
-    setAssignedIds(found.assignedCandidateIds);
-    setInitialAssignedCount(found.assignedCandidateIds.length);
   }, [solicitudId]);
 
   const isLocked = initialAssignedCount > 0;
@@ -158,10 +145,6 @@ export function useSolicitud(
 
       setLoading(true);
       try {
-        await new Promise((r) => setTimeout(r, 500));
-
-        const list = readSolicitudes();
-
         const nextStatus: SolicitudStatus =
           isEdit && isLocked
             ? form.status
@@ -169,33 +152,21 @@ export function useSolicitud(
               ? "EN_PROCESO"
               : form.status;
 
+        const payload = {
+          title: form.title.trim(),
+          description: form.description.trim(),
+          requiredTechnicalSkills: form.requiredTechnicalSkills.trim(),
+          requiredExperience: form.requiredExperience.trim(),
+          status: nextStatus,
+          assignedCandidateIds: assignedIds.map(Number),
+        };
+
         if (solicitudId) {
-          const idx = list.findIndex((s) => s.id === solicitudId);
-          if (idx === -1) throw new Error("Solicitud no encontrada.");
-          list[idx] = {
-            ...list[idx],
-            title: form.title.trim(),
-            description: form.description.trim(),
-            requiredTechnicalSkills: form.requiredTechnicalSkills.trim(),
-            requiredExperience: form.requiredExperience.trim(),
-            status: nextStatus,
-            assignedCandidateIds: assignedIds,
-          };
+          await solicitudRepository.update(Number(solicitudId), payload);
         } else {
-          const nueva: Solicitud = {
-            id: `sol-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-            title: form.title.trim(),
-            description: form.description.trim(),
-            requiredTechnicalSkills: form.requiredTechnicalSkills.trim(),
-            requiredExperience: form.requiredExperience.trim(),
-            status: nextStatus,
-            createdAt: new Date().toISOString(),
-            assignedCandidateIds: assignedIds,
-          };
-          list.unshift(nueva);
+          await solicitudRepository.create(payload);
         }
 
-        writeSolicitudes(list);
         navigate("/recruiter/solicitudes");
       } catch (err) {
         setError(

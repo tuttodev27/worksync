@@ -60,8 +60,3 @@ export const SOLICITUD_STATUS = [
   { value: "CANCELADA", label: "Cancelada" },
 ] as const;
 
-// LocalStorage keys (mock persistence)
-export const STORAGE_KEYS = {
-  candidates: "worksync.candidates",
-  solicitudes: "worksync.solicitudes",
-} as const;

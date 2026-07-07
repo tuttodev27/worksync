@@ -1,25 +1,23 @@
 /**
  * Hook para listar/eliminar solicitudes - Application Layer
- * SRP: Solo lee y elimina solicitudes persistidas.
+ * SRP: Consume SolicitudApiRepository para leer y eliminar solicitudes.
  */
 
 import { useEffect, useState, useCallback } from "react";
 import type { Solicitud } from "../../../shared/types/forms";
-import { STORAGE_KEYS } from "../../../shared/constants/forms";
+import { solicitudRepository } from "../infrastructure/SolicitudApiRepository";
 
-function readSolicitudes(): Solicitud[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.solicitudes);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as Solicitud[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function writeSolicitudes(list: Solicitud[]): void {
-  localStorage.setItem(STORAGE_KEYS.solicitudes, JSON.stringify(list));
+function toSolicitud(api: { id: number; title: string; description: string; requiredTechnicalSkills: string; requiredExperience: string; status: string; createdAt: string; assignedCandidateIds: number[] }): Solicitud {
+  return {
+    id: String(api.id),
+    title: api.title,
+    description: api.description,
+    requiredTechnicalSkills: api.requiredTechnicalSkills,
+    requiredExperience: api.requiredExperience,
+    status: api.status as Solicitud["status"],
+    createdAt: api.createdAt,
+    assignedCandidateIds: api.assignedCandidateIds.map(String),
+  };
 }
 
 export interface UseSolicitudListReturn {
@@ -34,19 +32,21 @@ export function useSolicitudList(): UseSolicitudListReturn {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const refresh = useCallback(() => {
-    setSolicitudes(readSolicitudes());
+    return solicitudRepository.list({ size: 100 }).then((page) => {
+      setSolicitudes(page.content.map(toSolicitud));
+    }).catch(() => {
+      setSolicitudes([]);
+    });
   }, []);
 
   useEffect(() => {
-    refresh();
-    setIsLoading(false);
+    refresh().finally(() => setIsLoading(false));
   }, [refresh]);
 
   const remove = useCallback((id: string) => {
-    const current = readSolicitudes();
-    const next = current.filter((s) => s.id !== id);
-    writeSolicitudes(next);
-    setSolicitudes(next);
+    solicitudRepository.delete(Number(id)).then(() => {
+      setSolicitudes((prev) => prev.filter((s) => s.id !== id));
+    }).catch(() => {});
   }, []);
 
   return { solicitudes, isLoading, refresh, remove };
