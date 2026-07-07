@@ -13,6 +13,9 @@ export default function EditUserPage() {
     handleChange,
     handleSubmit,
     handleCancel,
+    availableRoles,
+    loadingRoles,
+    rolesError,
   } = useUserEdit();
 
   if (loading) {
@@ -144,6 +147,34 @@ export default function EditUserPage() {
             </div>
           </div>
 
+          <div className="form-group">
+            <label htmlFor="roleId" className="form-label">
+              Rol
+            </label>
+
+            <div className="select-wrapper">
+              <select
+                id="roleId"
+                name="roleId"
+                value={form.roleId}
+                onChange={handleChange}
+                disabled={loadingRoles}
+              >
+                <option value={0} disabled>
+                  {loadingRoles ? "Cargando roles..." : "Selecciona un rol"}
+                </option>
+                {availableRoles.map((role) => (
+                  <option key={role.id} value={role.id}>
+                    {role.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {rolesError && (
+              <small className="form-hint form-hint-error">{rolesError}</small>
+            )}
+          </div>
+
           <div className="form-group form-group-checkbox">
             <label className="form-checkbox-label">
               <input
@@ -155,6 +186,45 @@ export default function EditUserPage() {
               />
               <span>Usuario activo</span>
             </label>
+          </div>
+
+          <hr className="form-divider" />
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="password" className="form-label">
+                Nueva contraseña
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                className="form-input"
+                placeholder="Dejar vacío para mantener"
+                value={form.password}
+                onChange={handleChange}
+                minLength={8}
+              />
+              <small className="form-hint">
+                Solo si deseas cambiar la contraseña actual.
+              </small>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="rePassword" className="form-label">
+                Confirmar contraseña
+              </label>
+              <input
+                id="rePassword"
+                name="rePassword"
+                type="password"
+                className="form-input"
+                placeholder="Repite la nueva contraseña"
+                value={form.rePassword}
+                onChange={handleChange}
+                minLength={8}
+              />
+            </div>
           </div>
 
           <div className="form-actions">

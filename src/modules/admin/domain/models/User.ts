@@ -31,4 +31,6 @@ export interface UpdateUserPayload {
   countryCode: string;
   phone: string;
   active: boolean;
+  roleId?: number;
+  password?: string;
 }
