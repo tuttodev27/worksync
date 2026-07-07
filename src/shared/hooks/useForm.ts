@@ -4,7 +4,6 @@
  */
 
 import { useState, useCallback, type ChangeEvent, type FormEvent } from "react";
-import { logger } from "../utils/logger";
 
 export interface ValidationRule<T> {
   field: keyof T;
@@ -28,6 +27,7 @@ export function useForm<T>({ initialValues, validationRules = [], onSubmit }: Us
   const [errors, setErrors] = useState<Partial<Record<keyof T, string>>>({});
   const [loading, setLoading] = useState(false);
   const [touched, setTouched] = useState<Set<keyof T>>(new Set());
+  const [submissionError, setSubmissionError] = useState<string>("");
 
   // Manejar cambio de input
   const handleChange = useCallback((e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -71,7 +71,8 @@ export function useForm<T>({ initialValues, validationRules = [], onSubmit }: Us
   const handleSubmit = useCallback(
     async (e: FormEvent) => {
       e.preventDefault();
-      
+      setSubmissionError("");
+
       if (!validateAll()) {
         return;
       }
@@ -80,8 +81,9 @@ export function useForm<T>({ initialValues, validationRules = [], onSubmit }: Us
       try {
         await onSubmit(form);
       } catch (err) {
-        // Manejar error según necesidad
-        logger.error("Form error:", err);
+        const message =
+          err instanceof Error ? err.message : "Error al enviar el formulario";
+        setSubmissionError(message);
       } finally {
         setLoading(false);
       }
@@ -101,6 +103,7 @@ export function useForm<T>({ initialValues, validationRules = [], onSubmit }: Us
     errors,
     loading,
     touched,
+    submissionError,
     handleChange,
     handleBlur,
     handleSubmit,
