@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import type { UpdateUserPayload } from "../domain/models/User";
+import type { Role } from "../domain/models/Role";
 import { userRepository } from "../infrastructure/UserApiRepository";
 import type { UserRepository } from "../domain/ports/UserRepository";
 import { COUNTRY_CODES } from "../../../shared/constants/forms";
@@ -13,6 +14,9 @@ export interface UserEditFormData {
   countryCode: string;
   phone: string;
   active: boolean;
+  password: string;
+  rePassword: string;
+  roleId: number;
 }
 
 interface UseUserEditReturn {
@@ -24,6 +28,9 @@ interface UseUserEditReturn {
   handleChange: (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   handleSubmit: (e: FormEvent) => Promise<void>;
   handleCancel: () => void;
+  availableRoles: Role[];
+  loadingRoles: boolean;
+  rolesError: string;
 }
 
 export function useUserEdit(
@@ -39,11 +46,36 @@ export function useUserEdit(
     countryCode: COUNTRY_CODES[0],
     phone: "",
     active: true,
+    password: "",
+    rePassword: "",
+    roleId: 0,
   });
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
   const [notFound, setNotFound] = useState<boolean>(false);
+  const [availableRoles, setAvailableRoles] = useState<Role[]>([]);
+  const [loadingRoles, setLoadingRoles] = useState<boolean>(true);
+  const [rolesError, setRolesError] = useState<string>("");
+
+  useEffect(() => {
+    let cancelled = false;
+    repository
+      .listAvailableRoles()
+      .then((roles) => {
+        if (cancelled) return;
+        setAvailableRoles(roles);
+        setLoadingRoles(false);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setRolesError(err instanceof Error ? err.message : "Error al cargar roles");
+        setLoadingRoles(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [repository]);
 
   useEffect(() => {
     if (!id) return;
@@ -60,6 +92,9 @@ export function useUserEdit(
           countryCode: user.countryCode ?? COUNTRY_CODES[0],
           phone: user.phone ?? "",
           active: user.active,
+          password: "",
+          rePassword: "",
+          roleId: user.roles.length > 0 ? Number(user.roles[0]) : 0,
         });
         setLoading(false);
       })
@@ -117,13 +152,33 @@ export function useUserEdit(
         return;
       }
 
+      if (form.password && form.password.length < 8) {
+        setError("La contraseña debe tener al menos 8 caracteres.");
+        return;
+      }
+
+      if (form.password !== form.rePassword) {
+        setError("Las contraseñas no coinciden.");
+        return;
+      }
+
+      if (!form.roleId) {
+        setError("Selecciona un rol para el usuario.");
+        return;
+      }
+
       const payload: UpdateUserPayload = {
         name: form.name.trim(),
         lastName: form.lastName.trim(),
         countryCode: form.countryCode,
         phone: form.phone.trim(),
         active: form.active,
+        roleId: form.roleId,
       };
+
+      if (form.password) {
+        payload.password = form.password;
+      }
 
       setSaving(true);
       try {
@@ -151,5 +206,8 @@ export function useUserEdit(
     handleChange,
     handleSubmit,
     handleCancel,
+    availableRoles,
+    loadingRoles,
+    rolesError,
   };
 }
