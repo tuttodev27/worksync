@@ -212,6 +212,36 @@ export interface CandidateApiResponse {
   notes?: CandidateNoteResponse[];
 }
 
+// Solicitud Types
+export interface CreateSolicitudPayload {
+  title: string;
+  description?: string;
+  requiredTechnicalSkills: string;
+  requiredExperience?: string;
+  status: string;
+  assignedCandidateIds: number[];
+}
+
+export interface UpdateSolicitudPayload {
+  title?: string;
+  description?: string;
+  requiredTechnicalSkills?: string;
+  requiredExperience?: string;
+  status?: string;
+  assignedCandidateIds?: number[];
+}
+
+export interface SolicitudApiResponse {
+  id: number;
+  title: string;
+  description: string;
+  requiredTechnicalSkills: string;
+  requiredExperience: string;
+  status: string;
+  createdAt: string;
+  assignedCandidateIds: number[];
+}
+
 export interface UpdateCandidatePayload {
   phone?: string;
   countryCode?: string;
