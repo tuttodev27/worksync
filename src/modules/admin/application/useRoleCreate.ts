@@ -1,15 +1,16 @@
-import { useState, useCallback, type ChangeEvent, type FormEvent } from "react";
+import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "../../../shared/hooks/useForm";
 import type { RoleFormData } from "../../../shared/types/forms";
 import type { RoleRepository } from "../domain/ports/RoleRepository";
 import { roleRepository } from "../infrastructure/RoleApiRepository";
 
 interface UseRoleCreateReturn {
   form: RoleFormData;
-  error: string;
+  submissionError: string;
   loading: boolean;
-  handleChange: (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
-  handleSubmit: (e: FormEvent) => Promise<void>;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  handleSubmit: (e: React.FormEvent) => Promise<void>;
   handleCancel: () => void;
 }
 
@@ -24,61 +25,39 @@ export function useRoleCreate(
 ): UseRoleCreateReturn {
   const navigate = useNavigate();
 
-  const [form, setForm] = useState<RoleFormData>(initialForm);
-  const [error, setError] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const handleChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      const { name, value } = e.target;
-      setForm((prev) => ({ ...prev, [name]: value }));
-    },
-    []
-  );
+  const { form, submissionError, loading, handleChange, handleSubmit } =
+    useForm<RoleFormData>({
+      initialValues: initialForm,
+      validationRules: [
+        {
+          field: "name",
+          validate: (value) =>
+            typeof value === "string" && value.trim().length > 0,
+          message: "El nombre del rol es obligatorio.",
+        },
+        {
+          field: "active",
+          validate: (value) => value !== "",
+          message: "Debes seleccionar un estado.",
+        },
+      ],
+      onSubmit: async (values) => {
+        await repository.create({
+          name: values.name.trim(),
+          description: values.description.trim(),
+          active: values.active === "true",
+        });
+        navigate("/admin/roles");
+      },
+    });
 
   const handleCancel = useCallback(() => {
     navigate("/admin/roles");
   }, [navigate]);
 
-  const handleSubmit = useCallback(
-    async (e: FormEvent) => {
-      e.preventDefault();
-      setError("");
-
-      if (!form.name.trim()) {
-        setError("El nombre del rol es obligatorio.");
-        return;
-      }
-      if (form.active === "") {
-        setError("Debes seleccionar un estado.");
-        return;
-      }
-
-      setLoading(true);
-      try {
-        await repository.create({
-          name: form.name.trim(),
-          description: form.description.trim(),
-          active: form.active === "true",
-        });
-
-        navigate("/admin/roles");
-      } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "No pudimos crear el rol. Intenta de nuevo."
-        );
-      } finally {
-        setLoading(false);
-      }
-    },
-    [form, navigate, repository]
-  );
-
   return {
     form,
-    error,
+    submissionError,
     loading,
     handleChange,
     handleSubmit,

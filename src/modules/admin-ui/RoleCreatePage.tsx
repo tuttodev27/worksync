@@ -10,7 +10,7 @@ import "./AdminPages.css";
 import "./AdminForms.css";
 
 export default function RoleCreatePage() {
-  const { form, error, loading, handleChange, handleSubmit, handleCancel } =
+  const { form, submissionError, loading, handleChange, handleSubmit, handleCancel } =
     useRoleCreate();
 
   return (
@@ -26,7 +26,7 @@ export default function RoleCreatePage() {
 
       <div className="af-card">
         <form onSubmit={handleSubmit} className="af-form">
-          {error && <div className="af-error">{error}</div>}
+          {submissionError && <div className="af-error">{submissionError}</div>}
 
           <div className="af-row">
             <div className="af-group">
