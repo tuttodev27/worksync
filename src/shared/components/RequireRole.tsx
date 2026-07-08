@@ -2,6 +2,7 @@ import { Navigate } from "react-router-dom";
 import { useAuthUser } from "../hooks/useAuthUser";
 import type { UserRole } from "../types/auth.type";
 import { logger } from "../utils/logger";
+import Spinner from "./Spinner";
 
 interface RequireRoleProps {
   allowedRoles: UserRole[];
@@ -16,7 +17,7 @@ export default function RequireRole({
 
   logger.debug("RequireRole →", { user, isAuthenticated, isLoading, allowedRoles });
 
-  if (isLoading) return null;
+  if (isLoading) return <Spinner />;
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
