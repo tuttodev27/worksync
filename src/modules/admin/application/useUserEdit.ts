@@ -19,9 +19,12 @@ export interface UserEditFormData {
   roleId: number;
 }
 
+export type UserEditFieldErrors = Partial<Record<keyof UserEditFormData, string>>;
+
 interface UseUserEditReturn {
   form: UserEditFormData;
   error: string;
+  fieldErrors: UserEditFieldErrors;
   loading: boolean;
   saving: boolean;
   notFound: boolean;
@@ -31,6 +34,36 @@ interface UseUserEditReturn {
   availableRoles: Role[];
   loadingRoles: boolean;
   rolesError: string;
+}
+
+function validateEditForm(form: UserEditFormData): UserEditFieldErrors {
+  const errors: UserEditFieldErrors = {};
+
+  if (!form.name.trim()) {
+    errors.name = "El nombre es obligatorio.";
+  }
+
+  if (!form.lastName.trim()) {
+    errors.lastName = "El apellido es obligatorio.";
+  }
+
+  if (!form.phone.trim()) {
+    errors.phone = "El teléfono es obligatorio.";
+  }
+
+  if (form.password && form.password.length < 8) {
+    errors.password = "La contraseña debe tener al menos 8 caracteres.";
+  }
+
+  if (form.password !== form.rePassword) {
+    errors.rePassword = "Las contraseñas no coinciden.";
+  }
+
+  if (!form.roleId) {
+    errors.roleId = "Selecciona un rol para el usuario.";
+  }
+
+  return errors;
 }
 
 export function useUserEdit(
@@ -51,6 +84,7 @@ export function useUserEdit(
     roleId: 0,
   });
   const [error, setError] = useState<string>("");
+  const [fieldErrors, setFieldErrors] = useState<UserEditFieldErrors>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
   const [notFound, setNotFound] = useState<boolean>(false);
@@ -117,11 +151,23 @@ export function useUserEdit(
     (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       const target = e.target;
       const { name } = target;
+      const numericFields: Array<keyof UserEditFormData> = ["roleId"];
       if ("checked" in target) {
         setForm((prev) => ({ ...prev, [name]: target.checked }));
       } else {
-        setForm((prev) => ({ ...prev, [name]: target.value }));
+        setForm((prev) => ({
+          ...prev,
+          [name]: numericFields.includes(name as keyof UserEditFormData)
+            ? Number(target.value)
+            : target.value,
+        }));
       }
+      setFieldErrors((prev) => {
+        if (!(name in prev)) return prev;
+        const next = { ...prev };
+        delete next[name as keyof UserEditFieldErrors];
+        return next;
+      });
     },
     []
   );
@@ -137,35 +183,10 @@ export function useUserEdit(
 
       setError("");
 
-      if (!form.name.trim()) {
-        setError("El nombre es obligatorio.");
-        return;
-      }
+      const errors = validateEditForm(form);
+      setFieldErrors(errors);
 
-      if (!form.lastName.trim()) {
-        setError("El apellido es obligatorio.");
-        return;
-      }
-
-      if (!form.phone.trim()) {
-        setError("El teléfono es obligatorio.");
-        return;
-      }
-
-      if (form.password && form.password.length < 8) {
-        setError("La contraseña debe tener al menos 8 caracteres.");
-        return;
-      }
-
-      if (form.password !== form.rePassword) {
-        setError("Las contraseñas no coinciden.");
-        return;
-      }
-
-      if (!form.roleId) {
-        setError("Selecciona un rol para el usuario.");
-        return;
-      }
+      if (Object.keys(errors).length > 0) return;
 
       const payload: UpdateUserPayload = {
         name: form.name.trim(),
@@ -200,6 +221,7 @@ export function useUserEdit(
   return {
     form,
     error,
+    fieldErrors,
     loading,
     saving,
     notFound,

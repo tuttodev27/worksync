@@ -7,6 +7,7 @@ export default function EditUserPage() {
   const {
     form,
     error,
+    fieldErrors,
     loading,
     saving,
     notFound,
@@ -75,6 +76,9 @@ export default function EditUserPage() {
                 onChange={handleChange}
                 required
               />
+              {fieldErrors.name && (
+                <small className="form-hint form-hint-error">{fieldErrors.name}</small>
+              )}
             </div>
 
             <div className="form-group">
@@ -91,6 +95,9 @@ export default function EditUserPage() {
                 onChange={handleChange}
                 required
               />
+              {fieldErrors.lastName && (
+                <small className="form-hint form-hint-error">{fieldErrors.lastName}</small>
+              )}
             </div>
           </div>
 
@@ -144,6 +151,9 @@ export default function EditUserPage() {
                 onChange={handleChange}
                 required
               />
+              {fieldErrors.phone && (
+                <small className="form-hint form-hint-error">{fieldErrors.phone}</small>
+              )}
             </div>
           </div>
 
@@ -170,9 +180,11 @@ export default function EditUserPage() {
                 ))}
               </select>
             </div>
-            {rolesError && (
+            {fieldErrors.roleId ? (
+              <small className="form-hint form-hint-error">{fieldErrors.roleId}</small>
+            ) : rolesError ? (
               <small className="form-hint form-hint-error">{rolesError}</small>
-            )}
+            ) : null}
           </div>
 
           <div className="form-group form-group-checkbox">
@@ -208,6 +220,9 @@ export default function EditUserPage() {
               <small className="form-hint">
                 Solo si deseas cambiar la contraseña actual.
               </small>
+              {fieldErrors.password && (
+                <small className="form-hint form-hint-error">{fieldErrors.password}</small>
+              )}
             </div>
 
             <div className="form-group">
@@ -224,6 +239,9 @@ export default function EditUserPage() {
                 onChange={handleChange}
                 minLength={8}
               />
+              {fieldErrors.rePassword && (
+                <small className="form-hint form-hint-error">{fieldErrors.rePassword}</small>
+              )}
             </div>
           </div>
 

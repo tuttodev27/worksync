@@ -12,6 +12,7 @@ export default function RegisterPage() {
   const {
     form,
     error,
+    fieldErrors,
     loading,
     handleChange,
     handleSubmit,
@@ -49,6 +50,9 @@ export default function RegisterPage() {
                 onChange={handleChange}
                 required
               />
+              {fieldErrors.firstName && (
+                <small className="form-hint form-hint-error">{fieldErrors.firstName}</small>
+              )}
             </div>
 
             <div className="form-group">
@@ -65,6 +69,9 @@ export default function RegisterPage() {
                 onChange={handleChange}
                 required
               />
+              {fieldErrors.lastName && (
+                <small className="form-hint form-hint-error">{fieldErrors.lastName}</small>
+              )}
             </div>
           </div>
 
@@ -82,6 +89,9 @@ export default function RegisterPage() {
               onChange={handleChange}
               required
             />
+            {fieldErrors.email && (
+              <small className="form-hint form-hint-error">{fieldErrors.email}</small>
+            )}
           </div>
 
           <div className="form-row form-row-phone">
@@ -120,6 +130,9 @@ export default function RegisterPage() {
                 onChange={handleChange}
                 required
               />
+              {fieldErrors.phone && (
+                <small className="form-hint form-hint-error">{fieldErrors.phone}</small>
+              )}
             </div>
           </div>
 
@@ -139,6 +152,9 @@ export default function RegisterPage() {
                 required
                 minLength={8}
               />
+              {fieldErrors.password && (
+                <small className="form-hint form-hint-error">{fieldErrors.password}</small>
+              )}
             </div>
 
             <div className="form-group">
@@ -156,6 +172,9 @@ export default function RegisterPage() {
                 required
                 minLength={8}
               />
+              {fieldErrors.rePassword && (
+                <small className="form-hint form-hint-error">{fieldErrors.rePassword}</small>
+              )}
             </div>
           </div>
 
@@ -183,9 +202,11 @@ export default function RegisterPage() {
                 ))}
               </select>
             </div>
-            {rolesError && (
+            {fieldErrors.roleId ? (
+              <small className="form-hint form-hint-error">{fieldErrors.roleId}</small>
+            ) : rolesError ? (
               <small className="form-hint form-hint-error">{rolesError}</small>
-            )}
+            ) : null}
           </div>
 
           <div className="form-actions">
