@@ -36,6 +36,36 @@ interface UseUserEditReturn {
   rolesError: string;
 }
 
+function validateEditForm(form: UserEditFormData): UserEditFieldErrors {
+  const errors: UserEditFieldErrors = {};
+
+  if (!form.name.trim()) {
+    errors.name = "El nombre es obligatorio.";
+  }
+
+  if (!form.lastName.trim()) {
+    errors.lastName = "El apellido es obligatorio.";
+  }
+
+  if (!form.phone.trim()) {
+    errors.phone = "El teléfono es obligatorio.";
+  }
+
+  if (form.password && form.password.length < 8) {
+    errors.password = "La contraseña debe tener al menos 8 caracteres.";
+  }
+
+  if (form.password !== form.rePassword) {
+    errors.rePassword = "Las contraseñas no coinciden.";
+  }
+
+  if (!form.roleId) {
+    errors.roleId = "Selecciona un rol para el usuario.";
+  }
+
+  return errors;
+}
+
 export function useUserEdit(
   repository: UserRepository = userRepository
 ): UseUserEditReturn {
@@ -153,33 +183,9 @@ export function useUserEdit(
 
       setError("");
 
-      const errors: UserEditFieldErrors = {};
-
-      if (!form.name.trim()) {
-        errors.name = "El nombre es obligatorio.";
-      }
-
-      if (!form.lastName.trim()) {
-        errors.lastName = "El apellido es obligatorio.";
-      }
-
-      if (!form.phone.trim()) {
-        errors.phone = "El teléfono es obligatorio.";
-      }
-
-      if (form.password && form.password.length < 8) {
-        errors.password = "La contraseña debe tener al menos 8 caracteres.";
-      }
-
-      if (form.password !== form.rePassword) {
-        errors.rePassword = "Las contraseñas no coinciden.";
-      }
-
-      if (!form.roleId) {
-        errors.roleId = "Selecciona un rol para el usuario.";
-      }
-
+      const errors = validateEditForm(form);
       setFieldErrors(errors);
+
       if (Object.keys(errors).length > 0) return;
 
       const payload: UpdateUserPayload = {
