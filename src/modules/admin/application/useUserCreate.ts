@@ -22,6 +22,8 @@ export interface UserCreateFormData {
   roleId: number;
 }
 
+export type UserCreateFieldErrors = Partial<Record<keyof UserCreateFormData, string>>;
+
 const initialForm: UserCreateFormData = {
   firstName: "",
   lastName: "",
@@ -36,6 +38,7 @@ const initialForm: UserCreateFormData = {
 interface UseUserCreateReturn {
   form: UserCreateFormData;
   error: string;
+  fieldErrors: UserCreateFieldErrors;
   loading: boolean;
   handleChange: (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   handleSubmit: (e: FormEvent) => Promise<void>;
@@ -46,6 +49,42 @@ interface UseUserCreateReturn {
   rolesError: string;
 }
 
+function validateCreateForm(form: UserCreateFormData): UserCreateFieldErrors {
+  const errors: UserCreateFieldErrors = {};
+
+  if (!form.firstName.trim()) {
+    errors.firstName = "El nombre es obligatorio.";
+  }
+
+  if (!form.lastName.trim()) {
+    errors.lastName = "El apellido es obligatorio.";
+  }
+
+  if (!form.email.trim()) {
+    errors.email = "El email es obligatorio.";
+  }
+
+  if (!form.phone.trim()) {
+    errors.phone = "El teléfono es obligatorio.";
+  }
+
+  if (!form.password) {
+    errors.password = "La contraseña es obligatoria.";
+  } else if (form.password.length < 8) {
+    errors.password = "La contraseña debe tener al menos 8 caracteres.";
+  }
+
+  if (form.password !== form.rePassword) {
+    errors.rePassword = "Las contraseñas no coinciden.";
+  }
+
+  if (!form.roleId) {
+    errors.roleId = "Selecciona un rol para el usuario.";
+  }
+
+  return errors;
+}
+
 export function useUserCreate(
   repository: UserRepository = userRepository
 ): UseUserCreateReturn {
@@ -53,6 +92,7 @@ export function useUserCreate(
 
   const [form, setForm] = useState<UserCreateFormData>(initialForm);
   const [error, setError] = useState<string>("");
+  const [fieldErrors, setFieldErrors] = useState<UserCreateFieldErrors>({});
   const [loading, setLoading] = useState<boolean>(false);
   const [availableRoles, setAvailableRoles] = useState<Role[]>([]);
   const [loadingRoles, setLoadingRoles] = useState<boolean>(true);
@@ -80,7 +120,19 @@ export function useUserCreate(
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       const { name, value } = e.target;
-      setForm((prev) => ({ ...prev, [name]: value }));
+      const numericFields: Array<keyof UserCreateFormData> = ["roleId"];
+      setForm((prev) => ({
+        ...prev,
+        [name]: numericFields.includes(name as keyof UserCreateFormData)
+          ? Number(value)
+          : value,
+      }));
+      setFieldErrors((prev) => {
+        if (!(name in prev)) return prev;
+        const next = { ...prev };
+        delete next[name as keyof UserCreateFieldErrors];
+        return next;
+      });
     },
     []
   );
@@ -94,27 +146,17 @@ export function useUserCreate(
       e.preventDefault();
       setError("");
 
-      if (form.password.length < 8) {
-        setError("La contraseña debe tener al menos 8 caracteres.");
-        return;
-      }
+      const errors = validateCreateForm(form);
+      setFieldErrors(errors);
 
-      if (form.password !== form.rePassword) {
-        setError("Las contraseñas no coinciden.");
-        return;
-      }
-
-      if (!form.roleId) {
-        setError("Selecciona un rol para el usuario.");
-        return;
-      }
+      if (Object.keys(errors).length > 0) return;
 
       const payload: CreateUserPayload = {
-        name: form.firstName,
-        lastName: form.lastName,
-        email: form.email,
+        name: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+        email: form.email.trim(),
         countryCode: form.countryCode,
-        phone: form.phone,
+        phone: form.phone.trim(),
         password: form.password,
         roleId: form.roleId,
       };
@@ -139,6 +181,7 @@ export function useUserCreate(
   return {
     form,
     error,
+    fieldErrors,
     loading,
     handleChange,
     handleSubmit,

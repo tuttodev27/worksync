@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /login
+Disallow: /forgot-password
+Disallow: /admin/
+Disallow: /recruiter/
+
+Sitemap: https://worksync.example.com/sitemap.xml

@@ -64,6 +64,8 @@ export function useLogin(
 } catch (err) {
   logger.error("Error en login →", err);
   setError(err instanceof Error ? err.message : "Error al iniciar sesión");
+} finally {
+  setLoading(false);
 }
     },
     [form, repository, navigate]
