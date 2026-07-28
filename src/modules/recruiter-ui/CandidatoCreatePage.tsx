@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from "react";
+import { useState, useRef, type ChangeEvent, type DragEvent } from "react";
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { useCandidate } from "../recruiter/application/useCandidate";
@@ -203,13 +203,14 @@ export default function CandidatoCreatePage() {
   const [cvSuggestedFields, setCvSuggestedFields] = useState<Set<string>>(new Set());
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const dragCounter = useRef(0);
 
   const isFieldSuggested = (fieldName: string) => cvSuggestedFields.has(fieldName);
 
-  const handleCvUpload = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const processCvFile = async (file: File) => {
     if (!file.name.toLowerCase().endsWith(".pdf")) {
       setErrorMessage("Solo se permite subir CV en formato PDF.");
       return;
@@ -279,7 +280,48 @@ export default function CandidatoCreatePage() {
       setErrorMessage("No se pudo procesar el CV. Intenta nuevamente.");
     } finally {
       setIsParsingCv(false);
-      e.target.value = "";
+    }
+  };
+
+  const handleCvUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    processCvFile(file);
+    e.target.value = "";
+  };
+
+  const handleDragOver = (e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDragEnter = (e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current += 1;
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      setIsDragOver(true);
+    }
+  };
+
+  const handleDragLeave = (e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current -= 1;
+    if (dragCounter.current === 0) {
+      setIsDragOver(false);
+    }
+  };
+
+  const handleDrop = (e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+    dragCounter.current = 0;
+
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processCvFile(file);
     }
   };
 
@@ -339,17 +381,17 @@ export default function CandidatoCreatePage() {
       )}
 
       <div className="wizard-stepper">
-        <div className={`wizard-step ${step >= 1 ? "active" : ""}`}>
+        <div className={`wizard-step ${step === 1 ? "active" : step > 1 ? "completed" : ""}`}>
           <span className="wizard-step-number">1</span>
           <span className="wizard-step-label">Subir CV</span>
         </div>
-        <div className="wizard-connector" />
-        <div className={`wizard-step ${step >= 2 ? "active" : ""}`}>
+        <div className={`wizard-connector ${step > 1 ? "completed" : ""}`} />
+        <div className={`wizard-step ${step === 2 ? "active" : step > 2 ? "completed" : ""}`}>
           <span className="wizard-step-number">2</span>
           <span className="wizard-step-label">Datos personales</span>
         </div>
-        <div className="wizard-connector" />
-        <div className={`wizard-step ${step >= 3 ? "active" : ""}`}>
+        <div className={`wizard-connector ${step > 2 ? "completed" : ""}`} />
+        <div className={`wizard-step ${step === 3 ? "active" : ""}`}>
           <span className="wizard-step-number">3</span>
           <span className="wizard-step-label">Perfil profesional</span>
         </div>
@@ -363,20 +405,49 @@ export default function CandidatoCreatePage() {
             <h3>Paso 1 — Subir CV</h3>
             <p className="wizard-description">
               Sube el CV del candidato en formato PDF para extraer sus datos automáticamente.
-              Si no tienes el CV ahora, puedes continuar y llenar los datos manualmente.
             </p>
 
-            <div className="form-group form-group-full">
-              <label htmlFor="cvFile">CV (solo PDF)</label>
+            <div
+              className={`cv-dropzone ${isDragOver ? "drag-over" : ""}`}
+              onDragOver={handleDragOver}
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+            >
               <input
+                ref={fileInputRef}
                 id="cvFile"
                 name="cvFile"
                 type="file"
-                className="form-input"
+                className="cv-dropzone-input"
                 accept="application/pdf,.pdf"
                 onChange={handleCvUpload}
                 disabled={isParsingCv}
               />
+              <div className="cv-dropzone-icon">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+              </div>
+              <p className="cv-dropzone-text">
+                Arrastra el PDF aquí o{" "}
+                <span
+                  className="cv-dropzone-link"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fileInputRef.current?.click();
+                  }}
+                >
+                  selecciona un archivo
+                </span>
+              </p>
+              <p className="cv-dropzone-hint">PDF, máximo 5 MB</p>
+            </div>
+
+            <div className="cv-dropzone-feedback">
               {isParsingCv && (
                 <small className="candidato-hint wizard-loading">
                   Analizando CV…
