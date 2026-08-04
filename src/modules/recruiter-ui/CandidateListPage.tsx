@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useCandidateApiList } from "../recruiter/application/useCandidateApiList";
+import { useCandidateDeactivate } from "../recruiter/application/useCandidateDeactivate";
 import { useCatalogs } from "../recruiter/application/useCatalogs";
 import { candidateRepository } from "../recruiter/infrastructure/CandidateApiRepository";
 import type { AttachmentResponse } from "../recruiter/domain/types";
+import ConfirmModal from "../shared/ui/components/ConfirmModal";
 import "./CandidateListPage.css";
 
 function stateLabel(state?: string): string {
@@ -38,13 +40,17 @@ export default function CandidateListPage() {
     search,
     setSearch,
     setPage,
+    refresh,
   } = useCandidateApiList(10);
   const { catalogs } = useCatalogs();
+  const { deactivateCandidate } = useCandidateDeactivate();
 
   const [cvId, setCvId] = useState<number | null>(null);
   const [cvName, setCvName] = useState("");
   const [cvAttachments, setCvAttachments] = useState<AttachmentResponse[]>([]);
   const [cvLoading, setCvLoading] = useState(false);
+  const [confirmId, setConfirmId] = useState<number | null>(null);
+  const [deactivatingId, setDeactivatingId] = useState<number | null>(null);
 
   async function handleViewCv(candidateId: number, name: string) {
     setCvId(candidateId);
@@ -65,6 +71,24 @@ export default function CandidateListPage() {
     setCvName("");
     setCvAttachments([]);
   }
+
+  async function handleDeactivate() {
+    if (confirmId === null) return;
+    const id = confirmId;
+    setDeactivatingId(id);
+    setConfirmId(null);
+    try {
+      await deactivateCandidate(id);
+      await refresh();
+    } finally {
+      setDeactivatingId(null);
+    }
+  }
+
+  const confirmCandidate = candidates.find((c) => c.id === confirmId);
+  const confirmName = confirmCandidate
+    ? `${confirmCandidate.firstName} ${confirmCandidate.lastName}`
+    : "";
 
   return (
     <div className="candidate-list-page">
@@ -151,6 +175,16 @@ export default function CandidateListPage() {
                       >
                         Ver CV
                       </button>
+                      {c.active !== false && (
+                        <button
+                          className="candidate-link-action candidate-link-action--danger"
+                          style={{ marginLeft: 12 }}
+                          onClick={() => setConfirmId(c.id)}
+                          disabled={deactivatingId === c.id}
+                        >
+                          {deactivatingId === c.id ? "Desactivando…" : "Desactivar"}
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -217,6 +251,22 @@ export default function CandidateListPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={confirmId !== null}
+        title="Desactivar postulante"
+        message={
+          confirmName
+            ? `¿Estás seguro de desactivar a "${confirmName}"? El postulante quedará inactivo y se ocultará del flujo activo.`
+            : "¿Estás seguro de desactivar este postulante?"
+        }
+        confirmLabel="Desactivar"
+        cancelLabel="Cancelar"
+        variant="danger"
+        loading={deactivatingId === confirmId}
+        onConfirm={handleDeactivate}
+        onCancel={() => setConfirmId(null)}
+      />
     </div>
   );
 }

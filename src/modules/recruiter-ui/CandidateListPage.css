@@ -159,6 +159,20 @@
   text-decoration: underline;
 }
 
+.candidate-link-action--danger {
+  color: #dc2626;
+}
+
+.candidate-link-action--danger:hover {
+  color: #b91c1c;
+}
+
+.candidate-link-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
 .candidate-status {
   display: inline-block;
   padding: 3px 10px;

@@ -36,6 +36,7 @@ export function useCandidateApiList(
       setError("");
       try {
         const result = await candidateRepository.list({
+          active: true,
           page: pageNum,
           size: pageSize,
           search: searchTerm.trim() || undefined,
