@@ -94,9 +94,9 @@ describe("useCandidateStatuses", () => {
     result.current.refresh();
 
     await waitFor(() => {
-      expect(mockedListStatuses).toHaveBeenCalledTimes(2);
+      expect(result.current.statuses).toHaveLength(2);
     });
 
-    expect(result.current.statuses).toHaveLength(2);
+    expect(mockedListStatuses).toHaveBeenCalledTimes(2);
   });
 });

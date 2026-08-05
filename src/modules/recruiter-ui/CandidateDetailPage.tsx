@@ -6,6 +6,7 @@ import {
 } from "../recruiter/infrastructure/CandidateApiRepository";
 import { useCatalogs } from "../recruiter/application/useCatalogs";
 import { useCandidateStatuses } from "../recruiter/application/useCandidateStatuses";
+import { useCandidateAttachments } from "../recruiter/application/useCandidateAttachments";
 import type {
   CandidateApiResponse,
   AttachmentResponse,
@@ -58,8 +59,14 @@ export default function CandidateDetailPage() {
   const navigate = useNavigate();
   const { catalogs } = useCatalogs();
   const { statusLabel } = useCandidateStatuses();
+  const numericId = id && !Number.isNaN(Number(id)) ? Number(id) : undefined;
+  const {
+    attachments,
+    isLoading: attachmentsLoading,
+    error: attachmentsError,
+    addAttachment,
+  } = useCandidateAttachments(numericId);
   const [candidate, setCandidate] = useState<CandidateApiResponse | null>(null);
-  const [attachments, setAttachments] = useState<AttachmentResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -86,12 +93,10 @@ export default function CandidateDetailPage() {
     setError("");
     Promise.all([
       candidateRepository.getById(numericId),
-      candidateRepository.listAttachments(numericId),
       candidateRepository.listStatusHistory(numericId).catch(() => []),
     ])
-      .then(([cand, atts, history]) => {
+      .then(([cand, history]) => {
         setCandidate(cand);
-        setAttachments(atts);
         setStatusHistory(history);
         setSelectedStatus(cand.currentState ?? "");
       })
@@ -127,7 +132,7 @@ export default function CandidateDetailPage() {
         Number(id),
         file,
       );
-      setAttachments((prev) => [...prev, attachment]);
+      addAttachment(attachment);
       const updated = await candidateRepository.getById(Number(id));
       setCandidate(updated);
     } catch (err) {
@@ -379,7 +384,9 @@ export default function CandidateDetailPage() {
           {uploading && <p className="candidate-upload-status">Subiendo archivo…</p>}
           {uploadError && <p className="candidate-upload-error">{uploadError}</p>}
         </div>
-        {attachments && attachments.length > 0 ? (
+        {attachmentsError ? (
+          <p className="candidate-detail-error">{attachmentsError}</p>
+        ) : attachments.length > 0 ? (
           <ul className="attachment-list">
             {attachments.map((a) => (
               <li key={a.id} className="attachment-item">
@@ -396,6 +403,8 @@ export default function CandidateDetailPage() {
               </li>
             ))}
           </ul>
+        ) : attachmentsLoading ? (
+          <p className="candidate-detail-empty">Cargando archivos adjuntos...</p>
         ) : (
           <p className="candidate-detail-empty">Sin CV adjuntos.</p>
         )}
