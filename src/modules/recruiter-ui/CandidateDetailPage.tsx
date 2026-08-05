@@ -5,6 +5,7 @@ import {
   CandidateApiError,
 } from "../recruiter/infrastructure/CandidateApiRepository";
 import { useCatalogs } from "../recruiter/application/useCatalogs";
+import { useCandidateStatuses } from "../recruiter/application/useCandidateStatuses";
 import type {
   CandidateApiResponse,
   AttachmentResponse,
@@ -32,25 +33,11 @@ function stateClass(state?: string): string {
   return `${base} ${base}--${state.toLowerCase()}`;
 }
 
-function stateLabel(state?: string): string {
-  if (!state) return "-";
-  const labels: Record<string, string> = {
-    NEW: "Nuevo",
-    IN_REVIEW: "En revisión",
-    CONTACTED: "Contactado",
-    INTERVIEW: "Entrevista",
-    OFFERED: "Ofertado",
-    HIRED: "Contratado",
-    REJECTED: "Rechazado",
-    ARCHIVED: "Archivado",
-  };
-  return labels[state] ?? state;
-}
-
 export default function CandidateDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { catalogs } = useCatalogs();
+  const { statusLabel } = useCandidateStatuses();
   const [candidate, setCandidate] = useState<CandidateApiResponse | null>(null);
   const [attachments, setAttachments] = useState<AttachmentResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -185,7 +172,7 @@ export default function CandidateDetailPage() {
             Ficha completa del candidato
             {candidate.currentState && (
               <span className="candidate-detail-badge">
-                {stateLabel(candidate.currentState)}
+                {statusLabel(candidate.currentState)}
               </span>
             )}
           </p>

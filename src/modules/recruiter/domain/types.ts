@@ -184,6 +184,11 @@ export interface StatusHistoryResponse {
   changedAt?: string;
 }
 
+export interface CandidateStatusResponse {
+  code: string;
+  label: string;
+}
+
 
 export interface CandidateApiResponse {
   id: number;
