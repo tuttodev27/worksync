@@ -152,6 +152,25 @@ export class CandidateApiRepository {
     }
   }
 
+  async getAttachmentContent(
+    candidateId: number,
+    attachmentId: number,
+  ): Promise<Blob> {
+    try {
+      return await httpRequest<Blob>(
+        `/api/candidates/${candidateId}/attachments/${attachmentId}/content`,
+        {
+          method: "GET",
+          baseUrl: this.baseUrl,
+          authScope: "candidates",
+          responseType: "blob",
+        },
+      );
+    } catch (err) {
+      toApiError(err);
+    }
+  }
+
   async parseAttachment(
     candidateId: number,
     attachmentId: number,

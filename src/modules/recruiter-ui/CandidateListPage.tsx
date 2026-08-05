@@ -38,16 +38,44 @@ export default function CandidateListPage() {
   const [cvName, setCvName] = useState("");
   const [cvAttachments, setCvAttachments] = useState<AttachmentResponse[]>([]);
   const [cvLoading, setCvLoading] = useState(false);
+  const [cvContentUrl, setCvContentUrl] = useState<string | null>(null);
+  const [cvContentLoading, setCvContentLoading] = useState(false);
+  const [cvContentError, setCvContentError] = useState("");
+  const [activeAttachmentId, setActiveAttachmentId] = useState<number | null>(null);
   const [confirmId, setConfirmId] = useState<number | null>(null);
   const [deactivatingId, setDeactivatingId] = useState<number | null>(null);
+
+  async function loadCvContent(candidateId: number, attachment: AttachmentResponse) {
+    setActiveAttachmentId(attachment.id);
+    setCvContentLoading(true);
+    setCvContentError("");
+    if (cvContentUrl) {
+      URL.revokeObjectURL(cvContentUrl);
+      setCvContentUrl(null);
+    }
+    try {
+      const blob = await candidateRepository.getAttachmentContent(candidateId, attachment.id);
+      setCvContentUrl(URL.createObjectURL(blob));
+    } catch {
+      setCvContentError("No se pudo cargar el documento.");
+    } finally {
+      setCvContentLoading(false);
+    }
+  }
 
   async function handleViewCv(candidateId: number, name: string) {
     setCvId(candidateId);
     setCvName(name);
     setCvLoading(true);
+    setCvContentUrl(null);
+    setActiveAttachmentId(null);
+    setCvContentError("");
     try {
       const attachments = await candidateRepository.listAttachments(candidateId);
       setCvAttachments(attachments);
+      if (attachments.length > 0) {
+        await loadCvContent(candidateId, attachments[0]);
+      }
     } catch {
       setCvAttachments([]);
     } finally {
@@ -56,9 +84,15 @@ export default function CandidateListPage() {
   }
 
   function handleCloseCv() {
+    if (cvContentUrl) {
+      URL.revokeObjectURL(cvContentUrl);
+    }
     setCvId(null);
     setCvName("");
     setCvAttachments([]);
+    setCvContentUrl(null);
+    setActiveAttachmentId(null);
+    setCvContentError("");
   }
 
   async function handleDeactivate() {
@@ -235,21 +269,35 @@ export default function CandidateListPage() {
               ) : cvAttachments.length === 0 ? (
                 <p className="candidate-list-empty">Sin documentos adjuntos.</p>
               ) : (
-                <ul className="cv-attachment-list">
-                  {cvAttachments.map((a) => (
-                    <li key={a.id}>
-                      <a
-                        href={a.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="candidate-link-action"
-                      >
-                        {a.fileName}
-                      </a>
-                      {a.parseStatus === "COMPLETED" && " (Procesado)"}
-                    </li>
-                  ))}
-                </ul>
+                <>
+                  <ul className="cv-attachment-list">
+                    {cvAttachments.map((a) => (
+                      <li key={a.id}>
+                        <button
+                          type="button"
+                          className={`cv-attachment-button ${a.id === activeAttachmentId ? "cv-attachment-button--active" : ""}`}
+                          onClick={() => loadCvContent(cvId as number, a)}
+                          disabled={cvContentLoading}
+                        >
+                          {a.fileName}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="cv-pdf-container">
+                    {cvContentLoading ? (
+                      <p className="candidate-list-empty">Cargando documento...</p>
+                    ) : cvContentError ? (
+                      <p className="candidate-list-error">{cvContentError}</p>
+                    ) : cvContentUrl ? (
+                      <iframe
+                        src={cvContentUrl}
+                        title="Documento CV"
+                        className="cv-pdf-iframe"
+                      />
+                    ) : null}
+                  </div>
+                </>
               )}
             </div>
           </div>

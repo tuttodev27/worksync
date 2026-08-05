@@ -33,6 +33,26 @@ function stateClass(state?: string): string {
   return `${base} ${base}--${state.toLowerCase()}`;
 }
 
+function parseStatusLabel(status?: string): string {
+  if (!status) return "Sin procesar";
+  switch (status) {
+    case "PENDING":
+      return "Pendiente";
+    case "COMPLETED":
+      return "Procesado";
+    case "FAILED":
+      return "Error";
+    default:
+      return status;
+  }
+}
+
+function parseStatusClass(status?: string): string {
+  const base = "attachment-parse-status";
+  if (!status) return base;
+  return `${base} ${base}--${status.toLowerCase()}`;
+}
+
 export default function CandidateDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -49,6 +69,10 @@ export default function CandidateDetailPage() {
   const [statusUpdating, setStatusUpdating] = useState(false);
   const [statusError, setStatusError] = useState("");
   const [showStatusConfirm, setShowStatusConfirm] = useState(false);
+  const [selectedAttachment, setSelectedAttachment] = useState<AttachmentResponse | null>(null);
+  const [cvContentUrl, setCvContentUrl] = useState<string | null>(null);
+  const [cvLoading, setCvLoading] = useState(false);
+  const [cvError, setCvError] = useState("");
 
   useEffect(() => {
     if (!id) return;
@@ -116,6 +140,38 @@ export default function CandidateDetailPage() {
       setUploading(false);
       e.target.value = "";
     }
+  };
+
+  const handleOpenCv = async (attachment: AttachmentResponse) => {
+    if (!id) return;
+    setSelectedAttachment(attachment);
+    setCvLoading(true);
+    setCvError("");
+    setCvContentUrl(null);
+    try {
+      const blob = await candidateRepository.getAttachmentContent(
+        Number(id),
+        attachment.id,
+      );
+      setCvContentUrl(URL.createObjectURL(blob));
+    } catch (err) {
+      if (err instanceof CandidateApiError) {
+        setCvError(err.message);
+      } else {
+        setCvError("No se pudo cargar el documento.");
+      }
+    } finally {
+      setCvLoading(false);
+    }
+  };
+
+  const handleCloseCv = () => {
+    if (cvContentUrl) {
+      URL.revokeObjectURL(cvContentUrl);
+    }
+    setCvContentUrl(null);
+    setSelectedAttachment(null);
+    setCvError("");
   };
 
   const handleStatusChange = async () => {
@@ -306,6 +362,56 @@ export default function CandidateDetailPage() {
           )}
         </div>
       </div>
+
+      <div className="candidate-detail-card cv-section">
+        <h3>Documentos adjuntos</h3>
+        {attachments && attachments.length > 0 ? (
+          <ul className="attachment-list">
+            {attachments.map((a) => (
+              <li key={a.id} className="attachment-item">
+                <button
+                  type="button"
+                  className="attachment-link"
+                  onClick={() => handleOpenCv(a)}
+                >
+                  {a.fileName}
+                </button>
+                <span className={parseStatusClass(a.parseStatus)}>
+                  {parseStatusLabel(a.parseStatus)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="candidate-detail-empty">Sin documentos adjuntos.</p>
+        )}
+      </div>
+
+      {selectedAttachment && (
+        <div className="cv-modal-overlay" onClick={handleCloseCv}>
+          <div className="cv-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="cv-modal-header">
+              <h3>CV de {candidate.firstName} {candidate.lastName}</h3>
+              <button className="cv-modal-close" onClick={handleCloseCv}>
+                &times;
+              </button>
+            </div>
+            <div className="cv-modal-body">
+              {cvLoading ? (
+                <p className="candidate-detail-empty">Cargando documento...</p>
+              ) : cvError ? (
+                <p className="candidate-detail-error">{cvError}</p>
+              ) : cvContentUrl ? (
+                <iframe
+                  src={cvContentUrl}
+                  title={selectedAttachment.fileName}
+                  className="cv-modal-iframe"
+                />
+              ) : null}
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

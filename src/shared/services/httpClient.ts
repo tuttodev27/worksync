@@ -21,6 +21,7 @@ type RequestOptions = Omit<RequestInit, "body"> & {
   auth?: boolean;
   baseUrl?: string;
   authScope?: "users" | "candidates";
+  responseType?: "json" | "text" | "blob";
 };
 
 const TOKEN_STORAGE_KEY = "token";
@@ -54,7 +55,7 @@ export async function httpRequest<T = unknown>(
   path: string,
   options: RequestOptions = {},
 ): Promise<T> {
-  const { body, auth = true, headers, baseUrl, authScope, ...rest } = options;
+  const { body, auth = true, headers, baseUrl, authScope, responseType = "json", ...rest } = options;
 
   const finalHeaders = new Headers(headers);
   if (body !== undefined && !(body instanceof FormData)) {
@@ -101,6 +102,10 @@ export async function httpRequest<T = unknown>(
 
   if (response.status === 204) {
     return undefined as T;
+  }
+
+  if (responseType === "blob") {
+    return (await response.blob()) as unknown as T;
   }
 
   const contentType = response.headers.get("content-type") ?? "";
