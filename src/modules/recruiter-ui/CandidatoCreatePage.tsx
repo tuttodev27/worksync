@@ -253,11 +253,11 @@ export default function CandidatoCreatePage() {
         lastName,
         email,
         phone,
-        notes: phoneCode,
-        experience: "",
-        education: latestPosition,
-        skills: yearsLabel,
-        status: educationLevel,
+        countryCode: phoneCode,
+        identityDocument: "",
+        latestPosition,
+        yearsExperience: yearsLabel,
+        educationLevel,
         language,
         languageLevel,
         technicalSkills,
@@ -268,10 +268,10 @@ export default function CandidatoCreatePage() {
       if (lastName) suggested.add("lastName");
       if (email) suggested.add("email");
       if (phone) suggested.add("phone");
-      if (phoneCode) suggested.add("notes");
-      if (latestPosition) suggested.add("education");
-      if (yearsLabel) suggested.add("skills");
-      if (educationLevel) suggested.add("status");
+      if (phoneCode) suggested.add("countryCode");
+      if (latestPosition) suggested.add("latestPosition");
+      if (yearsLabel) suggested.add("yearsExperience");
+      if (educationLevel) suggested.add("educationLevel");
       if (language) suggested.add("language");
       if (languageLevel) suggested.add("languageLevel");
       if (technicalSkills) suggested.add("technicalSkills");
@@ -536,35 +536,35 @@ export default function CandidatoCreatePage() {
               </div>
 
               <div className="form-group">
-                <label htmlFor="experience">
+                <label htmlFor="identityDocument">
                   Documento de identificación
-                  {isFieldSuggested("experience") && (
+                  {isFieldSuggested("identityDocument") && (
                     <span className="cv-badge">sugerido del CV</span>
                   )}
                 </label>
                 <input
-                  id="experience"
-                  name="experience"
+                  id="identityDocument"
+                  name="identityDocument"
                   type="text"
                   className="form-input"
                   placeholder="Documento"
-                  value={form.experience}
+                  value={form.identityDocument}
                   onChange={handleChange}
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="notes">
+                <label htmlFor="countryCode">
                   Código de país
-                  {isFieldSuggested("notes") && (
+                  {isFieldSuggested("countryCode") && (
                     <span className="cv-badge">sugerido del CV</span>
                   )}
                 </label>
                 <select
-                  id="notes"
-                  name="notes"
+                  id="countryCode"
+                  name="countryCode"
                   className="form-input"
-                  value={form.notes}
+                  value={form.countryCode}
                   onChange={handleChange}
                   disabled={catalogsLoading}
                 >
@@ -604,35 +604,65 @@ export default function CandidatoCreatePage() {
 
             <div className="form-grid">
               <div className="form-group">
-                <label htmlFor="education">
-                  Último cargo
-                  {isFieldSuggested("education") && (
-                    <span className="cv-badge">sugerido del CV</span>
-                  )}
-                </label>
+                <label htmlFor="headline">Título (headline)</label>
                 <input
-                  id="education"
-                  name="education"
+                  id="headline"
+                  name="headline"
                   type="text"
                   className="form-input"
-                  placeholder="Último cargo"
-                  value={form.education}
+                  placeholder="Ej. Backend Engineer"
+                  value={form.headline ?? ""}
                   onChange={handleChange}
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="skills">
+                <label htmlFor="latestPosition">
+                  Último cargo
+                  {isFieldSuggested("latestPosition") && (
+                    <span className="cv-badge">sugerido del CV</span>
+                  )}
+                </label>
+                <input
+                  id="latestPosition"
+                  name="latestPosition"
+                  type="text"
+                  className="form-input"
+                  placeholder="Último cargo"
+                  value={form.latestPosition}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+
+            <div className="form-grid" style={{ marginTop: 14 }}>
+              <div className="form-group form-group-full">
+                <label htmlFor="summary">Resumen</label>
+                <textarea
+                  id="summary"
+                  name="summary"
+                  className="form-input"
+                  placeholder="Resumen del perfil profesional"
+                  value={form.summary ?? ""}
+                  onChange={handleChange}
+                  rows={3}
+                />
+              </div>
+            </div>
+
+            <div className="form-grid" style={{ marginTop: 14 }}>
+              <div className="form-group">
+                <label htmlFor="yearsExperience">
                   Años de experiencia
-                  {isFieldSuggested("skills") && (
+                  {isFieldSuggested("yearsExperience") && (
                     <span className="cv-badge">sugerido del CV</span>
                   )}
                 </label>
                 <select
-                  id="skills"
-                  name="skills"
+                  id="yearsExperience"
+                  name="yearsExperience"
                   className="form-input"
-                  value={form.skills}
+                  value={form.yearsExperience}
                   onChange={handleChange}
                   disabled={catalogsLoading}
                 >
@@ -648,17 +678,17 @@ export default function CandidatoCreatePage() {
 
             <div className="form-grid" style={{ marginTop: 14 }}>
               <div className="form-group form-group-full">
-                <label htmlFor="status">
+                <label htmlFor="educationLevel">
                   Nivel de estudios
-                  {isFieldSuggested("status") && (
+                  {isFieldSuggested("educationLevel") && (
                     <span className="cv-badge">sugerido del CV</span>
                   )}
                 </label>
                 <select
-                  id="status"
-                  name="status"
+                  id="educationLevel"
+                  name="educationLevel"
                   className="form-input"
-                  value={form.status}
+                  value={form.educationLevel}
                   onChange={handleChange}
                   disabled={catalogsLoading}
                 >

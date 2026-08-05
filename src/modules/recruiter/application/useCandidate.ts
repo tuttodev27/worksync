@@ -41,11 +41,13 @@ const initialForm: CandidatoFormData = {
   email: "",
   phone: "",
   linkedin: "",
-  experience: "",
-  education: "",
-  skills: "",
-  status: "new",
-  notes: "",
+  identityDocument: "",
+  latestPosition: "",
+  yearsExperience: "",
+  educationLevel: "new",
+  countryCode: "",
+  headline: "",
+  summary: "",
   technicalSkills: "",
   softSkills: "",
   language: "",
@@ -123,10 +125,12 @@ function buildPayload(
   catalogs: RecruiterCatalogs | undefined,
 ): CreateCandidatePayload {
   const professionalProfile: CreateCandidateProfessionalProfile = {
-    latestPosition: form.education?.trim() || undefined,
+    headline: form.headline?.trim() || undefined,
+    summary: form.summary?.trim() || undefined,
+    latestPosition: form.latestPosition?.trim() || undefined,
   };
 
-  const experienceRange = findExperienceRange(catalogs, form.skills);
+  const experienceRange = findExperienceRange(catalogs, form.yearsExperience);
   if (experienceRange) {
     professionalProfile.experienceRangeId = experienceRange.id;
     if (experienceRange.minYears !== null) {
@@ -135,7 +139,7 @@ function buildPayload(
   }
 
   const educations: CreateCandidateEducation[] = [];
-  const educationLevel = findEducationLevel(catalogs, form.status);
+  const educationLevel = findEducationLevel(catalogs, form.educationLevel);
   if (educationLevel) {
     educations.push({ educationLevelId: educationLevel.id });
   }
@@ -155,11 +159,13 @@ function buildPayload(
     lastName: form.lastName.trim(),
     email: form.email.trim(),
     phone: form.phone?.trim() || undefined,
-    identityDocument: form.experience?.trim() || undefined,
-    countryCode: findCountryCodeIso(catalogs, form.notes ?? ""),
+    identityDocument: form.identityDocument?.trim() || undefined,
+    countryCode: findCountryCodeIso(catalogs, form.countryCode ?? ""),
   };
 
   if (
+    professionalProfile.headline ||
+    professionalProfile.summary ||
     professionalProfile.latestPosition ||
     professionalProfile.experienceRangeId ||
     professionalProfile.yearsExperience !== undefined

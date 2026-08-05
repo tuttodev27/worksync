@@ -111,11 +111,13 @@ export interface CandidatoFormData {
   email: string;
   phone: string;
   linkedin: string;
-  experience: string;
-  education: string;
-  skills: string;
-  status: string;
-  notes: string;
+  identityDocument: string;
+  latestPosition: string;
+  yearsExperience: string;
+  educationLevel: string;
+  countryCode: string;
+  headline: string;
+  summary: string;
   technicalSkills: string;
   softSkills: string;
   language: string;

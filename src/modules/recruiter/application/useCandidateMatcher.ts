@@ -30,7 +30,7 @@ export function matchCandidate(
   }
 
   const candidateTokens = normalize(
-    `${candidate.technicalSkills} ${candidate.skills}`,
+    `${candidate.technicalSkills} ${candidate.yearsExperience}`,
   );
 
   const matchedSkills: string[] = [];
