@@ -9,6 +9,7 @@ import type { PageResponse } from "../../../shared/types/api";
 import type {
   CreateCandidatePayload,
   CandidateApiResponse,
+  CandidateStatusResponse,
   UpdateCandidatePayload,
   AttachmentResponse,
   StatusChangeRequest,
@@ -159,6 +160,17 @@ export class CandidateApiRepository {
       return await httpRequest<CandidateApiResponse>(
         `/api/candidates/${candidateId}/attachments/${attachmentId}/parse`,
         { method: "POST", baseUrl: this.baseUrl, authScope: "candidates" },
+      );
+    } catch (err) {
+      toApiError(err);
+    }
+  }
+
+  async listStatuses(): Promise<CandidateStatusResponse[]> {
+    try {
+      return await httpRequest<CandidateStatusResponse[]>(
+        "/api/candidates/statuses",
+        { method: "GET", baseUrl: this.baseUrl, authScope: "candidates" },
       );
     } catch (err) {
       toApiError(err);

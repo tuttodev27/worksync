@@ -194,4 +194,25 @@ describe("CandidateApiRepository", () => {
       expect(result).toEqual(history);
     });
   });
+
+  describe("listStatuses", () => {
+    it("returns the status catalog", async () => {
+      const statuses = [
+        { code: "NEW", label: "Nuevo" },
+        { code: "IN_REVIEW", label: "En revisión" },
+        { code: "INTERVIEW", label: "Entrevista" },
+        { code: "SHORTLIST", label: "Finalista" },
+        { code: "REJECTED", label: "Rechazado" },
+        { code: "HIRED", label: "Contratado" },
+      ];
+      mockHttpRequest.mockResolvedValue(statuses);
+
+      const result = await repo.listStatuses();
+      expect(result).toEqual(statuses);
+      expect(mockHttpRequest).toHaveBeenCalledWith("/api/candidates/statuses", {
+        method: "GET",
+        baseUrl: "http://localhost:8084", authScope: "candidates",
+      });
+    });
+  });
 });

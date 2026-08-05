@@ -205,7 +205,7 @@
   color: #b45309;
 }
 
-.candidate-status--contacted {
+.candidate-status--shortlist {
   background: rgba(59, 130, 246, 0.12);
   color: #1d4ed8;
 }
@@ -213,11 +213,6 @@
 .candidate-status--interview {
   background: rgba(139, 92, 246, 0.12);
   color: #7c3aed;
-}
-
-.candidate-status--offered {
-  background: rgba(16, 185, 129, 0.12);
-  color: #047857;
 }
 
 .candidate-status--hired {
@@ -228,11 +223,6 @@
 .candidate-status--rejected {
   background: rgba(239, 68, 68, 0.12);
   color: #b91c1c;
-}
-
-.candidate-status--archived {
-  background: rgba(100, 116, 139, 0.12);
-  color: #475569;
 }
 
 .candidate-pagination {

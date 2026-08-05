@@ -1,25 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useCandidateApiList } from "../recruiter/application/useCandidateApiList";
+import { useCandidateStatuses } from "../recruiter/application/useCandidateStatuses";
 import { useCatalogs } from "../recruiter/application/useCatalogs";
 import { candidateRepository } from "../recruiter/infrastructure/CandidateApiRepository";
 import type { AttachmentResponse } from "../recruiter/domain/types";
 import "./CandidateListPage.css";
-
-function stateLabel(state?: string): string {
-  if (!state) return "-";
-  const labels: Record<string, string> = {
-    NEW: "Nuevo",
-    IN_REVIEW: "En revisión",
-    CONTACTED: "Contactado",
-    INTERVIEW: "Entrevista",
-    OFFERED: "Ofertado",
-    HIRED: "Contratado",
-    REJECTED: "Rechazado",
-    ARCHIVED: "Archivado",
-  };
-  return labels[state] ?? state;
-}
 
 function stateClass(state?: string): string {
   const base = "candidate-status";
@@ -42,6 +28,7 @@ export default function CandidateListPage() {
     setPage,
     refresh,
   } = useCandidateApiList(10);
+  const { statusLabel } = useCandidateStatuses();
   const { catalogs } = useCatalogs();
 
   const [cvId, setCvId] = useState<number | null>(null);
@@ -141,7 +128,7 @@ export default function CandidateListPage() {
                     </td>
                     <td>
                       <span className={stateClass(c.currentState)}>
-                        {stateLabel(c.currentState)}
+                        {statusLabel(c.currentState)}
                       </span>
                     </td>
                     <td>{c.professionalProfile?.latestPosition || "-"}</td>
