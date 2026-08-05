@@ -364,7 +364,21 @@ export default function CandidateDetailPage() {
       </div>
 
       <div className="candidate-detail-card cv-section">
-        <h3>Documentos adjuntos</h3>
+        <h3>CV y documentos</h3>
+        <div className="candidate-upload-section">
+          <label className="candidate-upload-label">
+            {uploading ? "Subiendo…" : "Subir CV (PDF)"}
+            <input
+              type="file"
+              accept="application/pdf,.pdf"
+              onChange={handleCvUpload}
+              disabled={uploading}
+              className="candidate-upload-input"
+            />
+          </label>
+          {uploading && <p className="candidate-upload-status">Subiendo archivo…</p>}
+          {uploadError && <p className="candidate-upload-error">{uploadError}</p>}
+        </div>
         {attachments && attachments.length > 0 ? (
           <ul className="attachment-list">
             {attachments.map((a) => (
@@ -383,7 +397,7 @@ export default function CandidateDetailPage() {
             ))}
           </ul>
         ) : (
-          <p className="candidate-detail-empty">Sin documentos adjuntos.</p>
+          <p className="candidate-detail-empty">Sin CV adjuntos.</p>
         )}
       </div>
 
