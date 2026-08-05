@@ -28,15 +28,6 @@ export const BOOLEAN_STATUS = [
   { value: "false", label: "Inactivo" },
 ] as const;
 
-// Candidate Status Options
-export const CANDIDATE_STATUS = [
-  { value: "new", label: "Nuevo" },
-  { value: "contacted", label: "Contactado" },
-  { value: "interview", label: "En entrevista" },
-  { value: "hired", label: "Contratado" },
-  { value: "rejected", label: "Descartado" },
-] as const;
-
 // Module Options (for permissions)
 export const MODULE_OPTIONS = [
   { id: "users", name: "Usuarios" },
