@@ -191,6 +191,17 @@ export class CandidateApiRepository {
       toApiError(err);
     }
   }
+
+  async deactivate(id: number): Promise<void> {
+    try {
+      await httpRequest<void>(`/api/candidates/${id}`, {
+        method: "DELETE",
+        baseUrl: this.baseUrl, authScope: "candidates",
+      });
+    } catch (err) {
+      toApiError(err);
+    }
+  }
 }
 
 export const candidateRepository = new CandidateApiRepository();

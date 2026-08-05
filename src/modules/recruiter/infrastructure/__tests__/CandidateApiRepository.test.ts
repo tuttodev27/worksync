@@ -15,7 +15,7 @@ vi.mock("../../../../shared/services/httpClient", () => ({
   },
 }));
 
-import { httpRequest } from "../../../../shared/services/httpClient";
+import { httpRequest, HttpError } from "../../../../shared/services/httpClient";
 
 const mockHttpRequest = vi.mocked(httpRequest);
 
@@ -192,6 +192,33 @@ describe("CandidateApiRepository", () => {
 
       const result = await repo.listStatusHistory(1);
       expect(result).toEqual(history);
+    });
+  });
+
+  describe("deactivate", () => {
+    it("sends DELETE and resolves for 204", async () => {
+      mockHttpRequest.mockResolvedValue(undefined);
+
+      await expect(repo.deactivate(1)).resolves.toBeUndefined();
+      expect(mockHttpRequest).toHaveBeenCalledWith("/api/candidates/1", {
+        method: "DELETE",
+        baseUrl: "http://localhost:8084", authScope: "candidates",
+      });
+    });
+
+    it("throws CandidateApiError when request fails", async () => {
+      mockHttpRequest.mockRejectedValue(
+        new HttpError(404, "Not found", {
+          code: "CANDIDATE_NOT_FOUND",
+          message: "Candidate not found",
+        }),
+      );
+
+      await expect(repo.deactivate(999)).rejects.toMatchObject({
+        name: "CandidateApiError",
+        status: 404,
+        code: "CANDIDATE_NOT_FOUND",
+      });
     });
   });
 });
