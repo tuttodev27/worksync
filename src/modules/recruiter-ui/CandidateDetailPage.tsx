@@ -33,6 +33,26 @@ function stateClass(state?: string): string {
   return `${base} ${base}--${state.toLowerCase()}`;
 }
 
+function parseStatusLabel(status?: string): string {
+  if (!status) return "Sin procesar";
+  switch (status) {
+    case "PENDING":
+      return "Pendiente";
+    case "COMPLETED":
+      return "Procesado";
+    case "FAILED":
+      return "Error";
+    default:
+      return status;
+  }
+}
+
+function parseStatusClass(status?: string): string {
+  const base = "attachment-parse-status";
+  if (!status) return base;
+  return `${base} ${base}--${status.toLowerCase()}`;
+}
+
 export default function CandidateDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -305,6 +325,45 @@ export default function CandidateDetailPage() {
             <p className="candidate-detail-empty">Sin habilidades blandas registradas.</p>
           )}
         </div>
+      </div>
+
+      <div className="candidate-detail-card cv-section">
+        <h3>CV y documentos</h3>
+        <div className="candidate-upload-section">
+          <label className="candidate-upload-label">
+            {uploading ? "Subiendo…" : "Subir CV (PDF)"}
+            <input
+              type="file"
+              accept="application/pdf,.pdf"
+              onChange={handleCvUpload}
+              disabled={uploading}
+              className="candidate-upload-input"
+            />
+          </label>
+          {uploading && <p className="candidate-upload-status">Subiendo archivo…</p>}
+          {uploadError && <p className="candidate-upload-error">{uploadError}</p>}
+        </div>
+        {attachments && attachments.length > 0 ? (
+          <ul className="attachment-list">
+            {attachments.map((a) => (
+              <li key={a.id} className="attachment-item">
+                <a
+                  href={a.fileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="attachment-link"
+                >
+                  {a.fileName}
+                </a>
+                <span className={parseStatusClass(a.parseStatus)}>
+                  {parseStatusLabel(a.parseStatus)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="candidate-detail-empty">Sin CV adjuntos.</p>
+        )}
       </div>
 
     </div>

@@ -204,6 +204,70 @@
   color: #b91c1c;
 }
 
+.cv-section {
+  margin-bottom: 16px;
+}
+
+.attachment-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.attachment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.attachment-item:last-child {
+  border-bottom: none;
+}
+
+.attachment-link {
+  color: #2563eb;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.attachment-link:hover {
+  text-decoration: underline;
+}
+
+.attachment-parse-status {
+  flex-shrink: 0;
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.attachment-parse-status--pending {
+  background: rgba(245, 158, 11, 0.14);
+  color: #b45309;
+}
+
+.attachment-parse-status--completed {
+  background: rgba(16, 185, 129, 0.14);
+  color: #047857;
+}
+
+.attachment-parse-status--failed {
+  background: rgba(239, 68, 68, 0.14);
+  color: #b91c1c;
+}
+
 @media (max-width: 860px) {
   .candidate-detail-grid {
     grid-template-columns: 1fr;
