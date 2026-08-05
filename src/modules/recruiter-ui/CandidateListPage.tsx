@@ -37,7 +37,10 @@ export default function CandidateListPage() {
     totalPages,
     search,
     setSearch,
+    active,
+    setActive,
     setPage,
+    refresh,
   } = useCandidateApiList(10);
   const { catalogs } = useCatalogs();
 
@@ -81,13 +84,28 @@ export default function CandidateListPage() {
       </div>
 
       <div className="candidate-list-toolbar">
-        <input
-          type="text"
-          className="candidate-search-input"
-          placeholder="Buscar por nombre..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        <div className="candidate-list-filters">
+          <input
+            type="text"
+            className="candidate-search-input"
+            placeholder="Buscar por nombre..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <select
+            className="candidate-filter-select"
+            aria-label="Filtrar por estado"
+            value={active === null ? "all" : active ? "true" : "false"}
+            onChange={(e) => {
+              const value = e.target.value;
+              setActive(value === "all" ? null : value === "true");
+            }}
+          >
+            <option value="true">Activos</option>
+            <option value="false">Inactivos</option>
+            <option value="all">Todos</option>
+          </select>
+        </div>
       </div>
 
       {error && <div className="candidate-list-error">{error}</div>}
