@@ -293,6 +293,9 @@
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
+  width: 900px;
+  max-width: 95vw;
+  height: 85vh;
 }
 
 .cv-modal-header {
@@ -343,4 +346,48 @@
 
 .cv-attachment-list li:last-child {
   border-bottom: none;
+}
+
+.cv-attachment-button {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  word-break: break-all;
+}
+
+.cv-attachment-button:hover {
+  text-decoration: underline;
+}
+
+.cv-attachment-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.cv-attachment-button--active {
+  color: #0f172a;
+  text-decoration: underline;
+}
+
+.cv-pdf-container {
+  flex: 1;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
+}
+
+.cv-pdf-iframe {
+  flex: 1;
+  width: 100%;
+  min-height: 400px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
 }

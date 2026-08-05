@@ -150,6 +150,24 @@ describe("CandidateApiRepository", () => {
     });
   });
 
+  describe("getAttachmentContent", () => {
+    it("requests blob and returns content", async () => {
+      const blob = new Blob(["pdf-content"], { type: "application/pdf" });
+      mockHttpRequest.mockResolvedValue(blob);
+
+      const result = await repo.getAttachmentContent(1, 5);
+      expect(result).toBe(blob);
+      expect(mockHttpRequest).toHaveBeenCalledWith(
+        "/api/candidates/1/attachments/5/content",
+        {
+          method: "GET",
+          baseUrl: "http://localhost:8084", authScope: "candidates",
+          responseType: "blob",
+        },
+      );
+    });
+  });
+
   describe("parseAttachment", () => {
     it("sends POST parse request", async () => {
       mockHttpRequest.mockResolvedValue(mockCandidate);

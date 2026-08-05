@@ -69,6 +69,10 @@ export default function CandidateDetailPage() {
   const [statusUpdating, setStatusUpdating] = useState(false);
   const [statusError, setStatusError] = useState("");
   const [showStatusConfirm, setShowStatusConfirm] = useState(false);
+  const [selectedAttachment, setSelectedAttachment] = useState<AttachmentResponse | null>(null);
+  const [cvContentUrl, setCvContentUrl] = useState<string | null>(null);
+  const [cvLoading, setCvLoading] = useState(false);
+  const [cvError, setCvError] = useState("");
 
   useEffect(() => {
     if (!id) return;
@@ -136,6 +140,38 @@ export default function CandidateDetailPage() {
       setUploading(false);
       e.target.value = "";
     }
+  };
+
+  const handleOpenCv = async (attachment: AttachmentResponse) => {
+    if (!id) return;
+    setSelectedAttachment(attachment);
+    setCvLoading(true);
+    setCvError("");
+    setCvContentUrl(null);
+    try {
+      const blob = await candidateRepository.getAttachmentContent(
+        Number(id),
+        attachment.id,
+      );
+      setCvContentUrl(URL.createObjectURL(blob));
+    } catch (err) {
+      if (err instanceof CandidateApiError) {
+        setCvError(err.message);
+      } else {
+        setCvError("No se pudo cargar el documento.");
+      }
+    } finally {
+      setCvLoading(false);
+    }
+  };
+
+  const handleCloseCv = () => {
+    if (cvContentUrl) {
+      URL.revokeObjectURL(cvContentUrl);
+    }
+    setCvContentUrl(null);
+    setSelectedAttachment(null);
+    setCvError("");
   };
 
   const handleStatusChange = async () => {
@@ -347,14 +383,13 @@ export default function CandidateDetailPage() {
           <ul className="attachment-list">
             {attachments.map((a) => (
               <li key={a.id} className="attachment-item">
-                <a
-                  href={a.fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
                   className="attachment-link"
+                  onClick={() => handleOpenCv(a)}
                 >
                   {a.fileName}
-                </a>
+                </button>
                 <span className={parseStatusClass(a.parseStatus)}>
                   {parseStatusLabel(a.parseStatus)}
                 </span>
@@ -365,6 +400,32 @@ export default function CandidateDetailPage() {
           <p className="candidate-detail-empty">Sin CV adjuntos.</p>
         )}
       </div>
+
+      {selectedAttachment && (
+        <div className="cv-modal-overlay" onClick={handleCloseCv}>
+          <div className="cv-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="cv-modal-header">
+              <h3>CV de {candidate.firstName} {candidate.lastName}</h3>
+              <button className="cv-modal-close" onClick={handleCloseCv}>
+                &times;
+              </button>
+            </div>
+            <div className="cv-modal-body">
+              {cvLoading ? (
+                <p className="candidate-detail-empty">Cargando documento...</p>
+              ) : cvError ? (
+                <p className="candidate-detail-error">{cvError}</p>
+              ) : cvContentUrl ? (
+                <iframe
+                  src={cvContentUrl}
+                  title={selectedAttachment.fileName}
+                  className="cv-modal-iframe"
+                />
+              ) : null}
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
