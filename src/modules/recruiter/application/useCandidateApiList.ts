@@ -15,6 +15,8 @@ export interface UseCandidateApiListReturn {
   totalPages: number;
   search: string;
   setSearch: (value: string) => void;
+  active: boolean | null;
+  setActive: (value: boolean | null) => void;
   setPage: (value: number) => void;
   refresh: () => Promise<void>;
 }
@@ -29,6 +31,7 @@ export function useCandidateApiList(
   const [page, setPage] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [search, setSearch] = useState<string>("");
+  const [active, setActive] = useState<boolean | null>(true);
 
   const doLoad = useCallback(
     async (pageNum: number, searchTerm: string) => {
@@ -36,6 +39,7 @@ export function useCandidateApiList(
       setError("");
       try {
         const result = await candidateRepository.list({
+          active: active ?? undefined,
           page: pageNum,
           size: pageSize,
           search: searchTerm.trim() || undefined,
@@ -58,7 +62,7 @@ export function useCandidateApiList(
         setLoading(false);
       }
     },
-    [pageSize],
+    [pageSize, active],
   );
 
   useEffect(() => {
@@ -72,6 +76,11 @@ export function useCandidateApiList(
     },
     [],
   );
+
+  const handleSetActive = useCallback((value: boolean | null) => {
+    setActive(value);
+    setPage(0);
+  }, []);
 
   const handleRefresh = useCallback(async () => {
     await doLoad(page, search);
@@ -87,6 +96,8 @@ export function useCandidateApiList(
     totalPages,
     search,
     setSearch: handleSetSearch,
+    active,
+    setActive: handleSetActive,
     setPage,
     refresh: handleRefresh,
   };
