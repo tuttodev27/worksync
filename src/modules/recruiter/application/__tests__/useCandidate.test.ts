@@ -69,6 +69,10 @@ describe("useCandidate", () => {
       latestPosition: "",
       yearsExperience: "",
       educationLevel: "new",
+      degree: "",
+      institution: "",
+      startDate: "",
+      endDate: "",
       countryCode: "",
       headline: "",
       summary: "",
@@ -110,6 +114,10 @@ describe("useCandidate", () => {
         latestPosition: "Senior Backend Developer",
         yearsExperience: "5-8 años",
         educationLevel: "Ingeniería",
+        degree: "Ingeniería Civil Informática",
+        institution: "Universidad de Chile",
+        startDate: "2015-03-01",
+        endDate: "2020-12-31",
       });
     });
 
@@ -129,7 +137,13 @@ describe("useCandidate", () => {
         experienceRangeId: 5,
         yearsExperience: 5,
       },
-      educations: [{ educationLevelId: 3 }],
+      educations: [{
+        educationLevelId: 3,
+        degree: "Ingeniería Civil Informática",
+        institution: "Universidad de Chile",
+        startDate: "2015-03-01",
+        endDate: "2020-12-31",
+      }],
     });
     expect(mockNavigate).toHaveBeenCalledWith("/recruiter/candidates");
   });

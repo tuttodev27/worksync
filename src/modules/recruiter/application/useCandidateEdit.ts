@@ -30,6 +30,8 @@ export interface CandidateEditFormData {
   educationLevel: string;
   degree: string;
   institution: string;
+  startDate: string;
+  endDate: string;
   language: string;
   languageLevel: string;
   technicalSkills: string;
@@ -124,6 +126,8 @@ export function useCandidateEdit(): UseCandidateEditReturn {
     educationLevel: "",
     degree: "",
     institution: "",
+    startDate: "",
+    endDate: "",
     language: "",
     languageLevel: "",
     technicalSkills: "",
@@ -179,6 +183,8 @@ export function useCandidateEdit(): UseCandidateEditReturn {
             : "",
           degree: candidate.educations?.[0]?.degree ?? "",
           institution: candidate.educations?.[0]?.institution ?? "",
+          startDate: candidate.educations?.[0]?.startDate ?? "",
+          endDate: candidate.educations?.[0]?.endDate ?? "",
           language: matchedLang?.name ?? "",
           languageLevel: matchedLevel?.code ?? "",
           technicalSkills: "",
@@ -247,6 +253,8 @@ export function useCandidateEdit(): UseCandidateEditReturn {
           educationLevelId: Number(form.educationLevel),
           degree: form.degree.trim() || undefined,
           institution: form.institution.trim() || undefined,
+          startDate: form.startDate.trim() || undefined,
+          endDate: form.endDate.trim() || undefined,
         });
       }
 

@@ -45,6 +45,10 @@ const initialForm: CandidatoFormData = {
   latestPosition: "",
   yearsExperience: "",
   educationLevel: "new",
+  degree: "",
+  institution: "",
+  startDate: "",
+  endDate: "",
   countryCode: "",
   headline: "",
   summary: "",
@@ -141,7 +145,13 @@ function buildPayload(
   const educations: CreateCandidateEducation[] = [];
   const educationLevel = findEducationLevel(catalogs, form.educationLevel);
   if (educationLevel) {
-    educations.push({ educationLevelId: educationLevel.id });
+    educations.push({
+      educationLevelId: educationLevel.id,
+      degree: form.degree?.trim() || undefined,
+      institution: form.institution?.trim() || undefined,
+      startDate: form.startDate?.trim() || undefined,
+      endDate: form.endDate?.trim() || undefined,
+    });
   }
 
   const languages: CreateCandidateLanguage[] = [];

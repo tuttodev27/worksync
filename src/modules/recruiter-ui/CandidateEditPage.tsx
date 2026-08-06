@@ -280,6 +280,56 @@ export default function CandidateEditPage() {
             </div>
 
             <div className="form-grid" style={{ marginTop: 14 }}>
+              <div className="form-group">
+                <label htmlFor="degree">Título</label>
+                <input
+                  id="degree"
+                  name="degree"
+                  className="form-input"
+                  placeholder="Ej. Ingeniería Civil Informática"
+                  value={form.degree ?? ""}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="institution">Institución</label>
+                <input
+                  id="institution"
+                  name="institution"
+                  className="form-input"
+                  placeholder="Ej. Universidad de Chile"
+                  value={form.institution ?? ""}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+
+            <div className="form-grid" style={{ marginTop: 14 }}>
+              <div className="form-group">
+                <label htmlFor="startDate">Fecha de inicio</label>
+                <input
+                  id="startDate"
+                  name="startDate"
+                  type="date"
+                  className="form-input"
+                  value={form.startDate ?? ""}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="endDate">Fecha de término</label>
+                <input
+                  id="endDate"
+                  name="endDate"
+                  type="date"
+                  className="form-input"
+                  value={form.endDate ?? ""}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+
+            <div className="form-grid" style={{ marginTop: 14 }}>
               <div className="form-group form-group-full">
                 <label htmlFor="technicalSkills">Habilidades técnicas</label>
                 <textarea

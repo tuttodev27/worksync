@@ -115,6 +115,10 @@ export interface CandidatoFormData {
   latestPosition: string;
   yearsExperience: string;
   educationLevel: string;
+  degree: string;
+  institution: string;
+  startDate: string;
+  endDate: string;
   countryCode: string;
   headline: string;
   summary: string;
