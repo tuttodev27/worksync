@@ -3,183 +3,10 @@ import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { useCandidate } from "../recruiter/application/useCandidate";
 import { useCatalogs } from "../recruiter/application/useCatalogs";
+import { parseCvText } from "../recruiter/application/cvParser";
 import "./CandidatoCreatePage.css";
 
 GlobalWorkerOptions.workerSrc = pdfWorker;
-
-const extractEmail = (text: string): string => {
-  const match = text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
-  return match?.[0] ?? "";
-};
-
-const extractPhone = (text: string): string => {
-  const match =
-    text.match(
-      /(?:\+?\d{1,3}[\s-]?)?(?:\(?\d{2,4}\)?[\s-]?)?\d{3,4}[\s-]?\d{3,4}/,
-    ) ?? null;
-  return match?.[0]?.trim() ?? "";
-};
-
-const extractCountryPhone = (phone: string, text: string): string => {
-  const source = `${phone} ${text}`;
-  const codeMatch = source.match(/\+(56|57|53|54|51|52|58|34|1)\b/);
-  return codeMatch ? `+${codeMatch[1]}` : "";
-};
-
-const mapYearsToRange = (years: number): string => {
-  if (years >= 8) return "8+";
-  if (years >= 5) return "5-7";
-  if (years >= 2) return "2-4";
-  return "0-1";
-};
-
-const extractExperienceYears = (text: string): string => {
-  const normalized = text.toLowerCase();
-
-  if (/8\+|más de 8|more than 8/.test(normalized)) return "8+";
-  if (/5\s*(a|-)\s*7|5\s*-\s*7/.test(normalized)) return "5-7";
-  if (/2\s*(a|-)\s*4|2\s*-\s*4/.test(normalized)) return "2-4";
-  if (/0\s*(a|-)\s*1|0\s*-\s*1/.test(normalized)) return "0-1";
-
-  const explicitYears = normalized.match(/(\d+)\s*(años|anos|years?)/);
-  if (explicitYears) {
-    return mapYearsToRange(Number(explicitYears[1]));
-  }
-
-  const monthMatches = normalized.match(/(\d+)\s*(meses|months?)/g);
-  if (monthMatches?.length) {
-    const totalMonths = monthMatches
-      .map((m) => Number(m.match(/\d+/)?.[0] ?? 0))
-      .reduce((acc, n) => acc + n, 0);
-    if (totalMonths > 0) {
-      return mapYearsToRange(totalMonths / 12);
-    }
-  }
-
-  return "";
-};
-
-const extractEducationLevel = (text: string): string => {
-  const t = text.toLowerCase();
-  if (/postgrado|mag[ií]ster|maestr[ií]a|mba|doctorado|phd/.test(t))
-    return "postgrado";
-  if (/universidad|universitario|ingenier[ií]a|licenciatura/.test(t))
-    return "universitario";
-  if (/t[eé]cnico|tecnico/.test(t)) return "tecnico";
-  if (/secundaria|bachiller/.test(t)) return "secundaria";
-  return "";
-};
-
-const extractLanguage = (text: string): string => {
-  const t = text.toLowerCase();
-  if (/ingl[eé]s|english/.test(t)) return "ingles";
-  if (/franc[eé]s|french/.test(t)) return "frances";
-  if (/espa[ñn]ol|spanish/.test(t)) return "espanol";
-  return "";
-};
-
-const extractLanguageLevel = (text: string): string => {
-  const t = text.toLowerCase();
-  const level = t.match(/\b(a1|a2|b1|b2|c1|c2)\b/);
-  if (level) return level[1];
-  if (/b[aá]sico|basic/.test(t)) return "a2";
-  if (/intermedio|intermediate/.test(t)) return "b1";
-  if (/avanzado|advanced|fluent/.test(t)) return "c1";
-  return "";
-};
-
-const extractProfessionalProfile = (text: string): string => {
-  const lines = text
-    .split(/\r?\n/)
-    .map((l) => l.trim())
-    .filter(Boolean);
-
-  const byKeyword = lines.find(
-    (l) =>
-      /(ingeniero|engineer|developer|desarrollador|analyst|analista|arquitecto|consultor|cargo|position|rol)/i.test(
-        l,
-      ) && l.length <= 120,
-  );
-
-  if (!byKeyword) return "";
-
-  return byKeyword
-    .replace(/\s*\+?\d[\d\s-]{6,}.*/g, "")
-    .replace(/\s+[|•-]\s+.*/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-};
-
-const extractTechnicalSkills = (text: string): string => {
-  const matches = text.match(
-    /\b(Java|TypeScript|JavaScript|React|Angular|Vue|Node|Spring|Spring Boot|SQL|PostgreSQL|MySQL|MongoDB|Docker|Kubernetes|AWS|Azure|GCP|Kafka|Python|C#|\.NET)\b/gi,
-  );
-  if (!matches?.length) return "";
-  const unique = Array.from(new Set(matches.map((m) => m.trim())));
-  return unique.join(", ");
-};
-
-const splitName = (line: string): { firstName: string; lastName: string } => {
-  const cleaned = line
-    .replace(/[^\p{L}\s'-]/gu, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  const stopwords = new Set([
-    "cv",
-    "curriculum",
-    "vitae",
-    "resume",
-    "hoja",
-    "de",
-    "vida",
-    "perfil",
-    "professional",
-  ]);
-
-  const parts = cleaned
-    .split(" ")
-    .map((p) => p.trim())
-    .filter(Boolean)
-    .filter((p) => !stopwords.has(p.toLowerCase()));
-
-  if (parts.length === 0) return { firstName: "", lastName: "" };
-  if (parts.length === 1) return { firstName: parts[0], lastName: "" };
-
-  return {
-    firstName: parts.slice(0, 1).join(" "),
-    lastName: parts.slice(1).join(" "),
-  };
-};
-
-const guessNameFromText = (
-  text: string,
-  fileName: string,
-): { firstName: string; lastName: string } => {
-  const lines = text
-    .split(/\r?\n/)
-    .map((l) => l.trim())
-    .filter(Boolean);
-
-  const candidateLine =
-    lines.find(
-      (l) =>
-        l.length >= 5 &&
-        l.length <= 80 &&
-        !/@/.test(l) &&
-        !/\d{4,}/.test(l) &&
-        /^[\p{L}\s.'-]+$/u.test(l),
-    ) ?? "";
-
-  if (candidateLine) return splitName(candidateLine);
-
-  const baseName = fileName.replace(/\.pdf$/i, "").trim();
-  const normalized = baseName
-    .replace(/[_\-]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-  return splitName(normalized);
-};
 
 type Step = 1 | 2 | 3;
 
@@ -237,45 +64,12 @@ export default function CandidatoCreatePage() {
         fullText += `\n${pageText}`;
       }
 
-      const { firstName, lastName } = guessNameFromText(fullText, file.name);
-      const email = extractEmail(fullText);
-      const phone = extractPhone(fullText);
-      const phoneCode = extractCountryPhone(phone, fullText);
-      const latestPosition = extractProfessionalProfile(fullText);
-      const yearsLabel = extractExperienceYears(fullText);
-      const educationLevel = extractEducationLevel(fullText);
-      const language = extractLanguage(fullText);
-      const languageLevel = extractLanguageLevel(fullText);
-      const technicalSkills = extractTechnicalSkills(fullText);
+      const { data: cvData, suggested } = parseCvText(fullText, file.name);
 
-      setFormData({
-        firstName,
-        lastName,
-        email,
-        phone,
-        countryCode: phoneCode,
-        identityDocument: "",
-        latestPosition,
-        yearsExperience: yearsLabel,
-        educationLevel,
-        language,
-        languageLevel,
-        technicalSkills,
-      });
-
-      const suggested = new Set<string>();
-      if (firstName) suggested.add("firstName");
-      if (lastName) suggested.add("lastName");
-      if (email) suggested.add("email");
-      if (phone) suggested.add("phone");
-      if (phoneCode) suggested.add("countryCode");
-      if (latestPosition) suggested.add("latestPosition");
-      if (yearsLabel) suggested.add("yearsExperience");
-      if (educationLevel) suggested.add("educationLevel");
-      if (language) suggested.add("language");
-      if (languageLevel) suggested.add("languageLevel");
-      if (technicalSkills) suggested.add("technicalSkills");
-      setCvSuggestedFields(suggested);
+      setFormData(cvData);
+      setCvSuggestedFields(new Set(suggested));
+      setStep(2);
+      setFieldErrors({});
     } catch {
       setErrorMessage("No se pudo procesar el CV. Intenta nuevamente.");
     } finally {
